@@ -1,4 +1,4 @@
-# Tidal Cassini - Inventory Management System
+# Retail Inventory Agent
 
 A Docker-based inventory management system for trophy retailers.
 
@@ -36,7 +36,7 @@ docker-compose up -d --build
 ## Project Structure
 
 ```
-tidal-cassini/
+retail-inventory-agent/
 ├── backend/           # FastAPI app
 │   ├── routers/       # API endpoints
 │   ├── models.py      # SQLAlchemy models
