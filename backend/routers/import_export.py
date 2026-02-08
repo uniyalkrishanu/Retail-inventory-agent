@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
-from sqlalchemy.orm import Session
-from fastapi.responses import StreamingResponse
-import models, schemas
-from database import get_db
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi.responses import FileResponse, StreamingResponse
+from sqlalchemy.orm import Session
+import models, schemas, database
+from database import get_db
 import io
+import os
+from .auth import get_current_user
 
 router = APIRouter(
     tags=["import_export"],
@@ -13,9 +15,10 @@ router = APIRouter(
 @router.post("/import")
 async def import_inventory(
     file: UploadFile = File(...), 
-    import_type: str = "inventory",  # "inventory" or "purchase"
-    payment_status: str = "Due",  # "Paid" or "Due" - for purchase imports
-    db: Session = Depends(get_db)
+    import_type: str = "inventory", 
+    payment_status: str = "Due", 
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     if not file.filename.endswith(('.xlsx', '.xls', '.csv')):
          raise HTTPException(status_code=400, detail="Invalid file format. Please upload Excel or CSV.")
@@ -77,36 +80,27 @@ async def import_inventory(
             
             content_hash = hashlib.sha256(hash_payload.encode()).hexdigest()
 
-            # 3. CHECK FOR EXISTING DUPLICATE
-            existing_purchase = None
-            if invoice_number:
-                # Primary check by Invoice Number for this Vendor
-                # First find vendor ID to be precise, or just check hash?
-                # Let's rely on Hash + Invoice combination or just Hash. 
-                # Actually, if invoice number is provided, we should probably check that first.
-                # But to be safe and consistent with previous logic, let's use the content_hash which now includes the invoice number.
-                existing_purchase = db.query(models.Purchase).filter(models.Purchase.content_hash == content_hash).first()
-                
-                # Fallback: Check by invoice number explicitly if hash missed (e.g. minor content diff but same invoice?)
-                # For now, strict equality via hash is safer to avoid merging different versions of same invoice.
-            else:
-                existing_purchase = db.query(models.Purchase).filter(models.Purchase.content_hash == content_hash).first()
+            # 3. CHECK FOR EXISTING DUPLICATE (Owner-aware)
+            existing_purchase = db.query(models.Purchase).filter(
+                models.Purchase.content_hash == content_hash,
+                models.Purchase.owner_id == current_user.id
+            ).first()
 
             if existing_purchase:
                 if existing_purchase.is_active:
-                    print(f"Skipping duplicate active purchase for {vendor_name}")
                     skipped_duplicates += 1
                     continue 
                 else:
                     # Soft Deleted -> Restore
-                    print(f"Restoring soft-deleted purchase for {vendor_name}")
                     existing_purchase.is_active = True
-                    
-                    # Check if stock was reverted
                     if existing_purchase.stock_reverted:
-                        print(f"Restoring stock for reverted purchase {existing_purchase.id}")
                         for item in existing_purchase.items:
-                            trophy = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id).first()
+                            # Re-lookup trophy with ownership
+                            t_q = db.query(models.Trophy).filter(
+                                models.Trophy.id == item.trophy_id,
+                                models.Trophy.owner_id == current_user.id
+                            )
+                            trophy = t_q.first()
                             if trophy:
                                 trophy.quantity += item.quantity
                         existing_purchase.stock_reverted = False
@@ -117,11 +111,13 @@ async def import_inventory(
             
             # --- IF NEW PURCHASE ---
 
-            # 1. Get or Create/Update Vendor
-            vendor = db.query(models.Vendor).filter(models.Vendor.name == vendor_name).first()
-            first_row = group.iloc[0]
+            # 1. Get or Create Vendor (Owner-aware)
+            vendor = db.query(models.Vendor).filter(
+                models.Vendor.name == vendor_name,
+                models.Vendor.owner_id == current_user.id
+            ).first()
             
-            # Helper to check if value is "blank"
+            first_row = group.iloc[0]
             def is_blank(val):
                 return pd.isna(val) or str(val).strip() == ""
 
@@ -134,13 +130,13 @@ async def import_inventory(
             if not vendor:
                 vendor = models.Vendor(
                     name=vendor_name,
+                    owner_id=current_user.id,
                     address=vendor_data["address"] if not is_blank(vendor_data["address"]) else None,
                     mobile=vendor_data["mobile"],
                     email=vendor_data["email"]
                 )
                 db.add(vendor)
             else:
-                # Update existing vendor ONLY if the new data is NOT blank
                 if not is_blank(vendor_data["address"]):
                     vendor.address = vendor_data["address"]
                 if not is_blank(vendor_data["mobile"]):
@@ -153,6 +149,7 @@ async def import_inventory(
             
             # 2. Create Purchase Record
             purchase = models.Purchase(
+                owner_id=current_user.id,
                 vendor_id=vendor.id,
                 total_amount=0.0,
                 is_active=True,
@@ -171,10 +168,15 @@ async def import_inventory(
                 quantity = int(row['quantity'])
                 cost = float(row['unit_cost'])
 
-                # Find Trophy
-                trophy = db.query(models.Trophy).filter(models.Trophy.sku == sku).first()
+                # Find Trophy (Owner-aware)
+                t_q = db.query(models.Trophy).filter(
+                    models.Trophy.sku == sku,
+                    models.Trophy.owner_id == current_user.id
+                )
+                trophy = t_q.first()
                 if not trophy:
                     trophy = models.Trophy(
+                        owner_id=current_user.id,
                         name=row.get('product_name', f"New Item {sku}"),
                         sku=sku,
                         quantity=0,
@@ -228,11 +230,15 @@ async def import_inventory(
         updated_count = 0
 
         for index, row in df.iterrows():
-            # Check if SKU exists
+            # Check if SKU exists (Owner-aware)
             sku = str(row['sku'])
-            existing_item = db.query(models.Trophy).filter(models.Trophy.sku == sku).first()
+            existing_item = db.query(models.Trophy).filter(
+                models.Trophy.sku == sku,
+                models.Trophy.owner_id == current_user.id
+            ).first()
             
             item_data = {
+                "owner_id": current_user.id,
                 "name": row['name'],
                 "sku": sku,
                 "quantity": int(row['quantity']),
@@ -244,12 +250,10 @@ async def import_inventory(
             }
 
             if existing_item:
-                # Update
                 for key, value in item_data.items():
                     setattr(existing_item, key, value)
                 updated_count += 1
             else:
-                # Create
                 new_item = models.Trophy(**item_data)
                 db.add(new_item)
                 imported_count += 1
@@ -282,9 +286,12 @@ async def import_inventory(
             invoice_no = str(row.get('INVOICE No.', ''))
             if invoice_no == 'nan': invoice_no = None
 
-            # Check duplicate by Invoice No
+            # Check duplicate by Invoice No (Owner-aware)
             if invoice_no:
-                existing = db.query(models.Sale).filter(models.Sale.invoice_number == invoice_no).first()
+                existing = db.query(models.Sale).filter(
+                    models.Sale.invoice_number == invoice_no,
+                    models.Sale.owner_id == current_user.id
+                ).first()
                 if existing:
                     skipped_duplicates += 1
                     continue
@@ -296,13 +303,14 @@ async def import_inventory(
                 sale_date = None
 
             sale = models.Sale(
+                owner_id=current_user.id,
                 timestamp=sale_date,
                 customer_name=row.get("PARTY'S NAME & ADDRESS", 'Unknown'),
                 invoice_number=invoice_no,
                 gstin=str(row.get('GSTIN No.', '')),
                 tax_amount=float(row.get('TOTAL TAX CHARGED', 0.0)) if pd.notna(row.get('TOTAL TAX CHARGED')) else 0.0,
                 total_amount=float(row.get('GRAND TOTAL', 0.0)),
-                total_profit=0.0 # Cannot calculate profit without item costs
+                total_profit=0.0
             )
             db.add(sale)
             imported_sales += 1
@@ -311,8 +319,11 @@ async def import_inventory(
         return {"message": "Sales import successful", "imported": imported_sales, "skipped": skipped_duplicates}
 
 @router.get("/export")
-def export_inventory(db: Session = Depends(get_db)):
-    items = db.query(models.Trophy).all()
+def export_inventory(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    query = db.query(models.Trophy)
+    if current_user.role != "root":
+        query = query.filter(models.Trophy.owner_id == current_user.id)
+    items = query.all()
     
     # Convert to list of dicts
     data = []

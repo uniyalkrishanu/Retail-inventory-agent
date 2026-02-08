@@ -4,22 +4,27 @@ from typing import List
 import models, schemas
 from database import get_db
 
+from .auth import get_current_user
+
 router = APIRouter(
     prefix="/customers",
     tags=["customers"],
 )
 
 @router.post("/", response_model=schemas.Customer)
-def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db)):
-    db_customer = models.Customer(**customer.dict())
+def create_customer(customer: schemas.CustomerCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_customer = models.Customer(**customer.dict(), owner_id=current_user.id)
     db.add(db_customer)
     db.commit()
     db.refresh(db_customer)
     return db_customer
 
 @router.get("/", response_model=List[schemas.Customer])
-def read_customers(skip: int = 0, limit: int = 100, search: str = None, db: Session = Depends(get_db)):
+def read_customers(skip: int = 0, limit: int = 100, search: str = None, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     query = db.query(models.Customer)
+    if current_user.role != "root":
+        query = query.filter(models.Customer.owner_id == current_user.id)
+    
     if search:
         query = query.filter(models.Customer.name.ilike(f"%{search}%"))
     
@@ -27,15 +32,23 @@ def read_customers(skip: int = 0, limit: int = 100, search: str = None, db: Sess
     return customers
 
 @router.get("/{customer_id}", response_model=schemas.Customer)
-def read_customer(customer_id: int, db: Session = Depends(get_db)):
-    db_customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+def read_customer(customer_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    query = db.query(models.Customer).filter(models.Customer.id == customer_id)
+    if current_user.role != "root":
+        query = query.filter(models.Customer.owner_id == current_user.id)
+    
+    db_customer = query.first()
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     return db_customer
 
 @router.put("/{customer_id}", response_model=schemas.Customer)
-def update_customer(customer_id: int, customer: schemas.CustomerUpdate, db: Session = Depends(get_db)):
-    db_customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+def update_customer(customer_id: int, customer: schemas.CustomerUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    query = db.query(models.Customer).filter(models.Customer.id == customer_id)
+    if current_user.role != "root":
+        query = query.filter(models.Customer.owner_id == current_user.id)
+    
+    db_customer = query.first()
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     
@@ -47,14 +60,20 @@ def update_customer(customer_id: int, customer: schemas.CustomerUpdate, db: Sess
     return db_customer
 
 @router.get("/{customer_id}/recommendations")
-def get_customer_recommendations(customer_id: int, limit: int = 5, db: Session = Depends(get_db)):
+def get_customer_recommendations(customer_id: int, limit: int = 5, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
     Get top purchased products for a customer based on their purchase history.
-    Returns products ordered by total quantity purchased.
     """
     from sqlalchemy import func
     
-    # Get all sales for this customer with their items
+    # Verify customer ownership
+    query = db.query(models.Customer).filter(models.Customer.id == customer_id)
+    if current_user.role != "root":
+        query = query.filter(models.Customer.owner_id == current_user.id)
+    if not query.first():
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    # Get recommendations
     results = db.query(
         models.Trophy.id,
         models.Trophy.name,
@@ -88,18 +107,16 @@ def get_customer_recommendations(customer_id: int, limit: int = 5, db: Session =
     return recommendations
 
 @router.post("/{customer_id}/payments")
-def register_payment(customer_id: int, amount: float, notes: str = None, db: Session = Depends(get_db)):
-    """
-    Register a payment received from a customer.
-    This updates their current_balance (adds to balance since payments reduce debt).
-    """
-    db_customer = db.query(models.Customer).filter(models.Customer.id == customer_id).first()
+def register_payment(customer_id: int, amount: float, notes: str = None, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    query = db.query(models.Customer).filter(models.Customer.id == customer_id)
+    if current_user.role != "root":
+        query = query.filter(models.Customer.owner_id == current_user.id)
+    
+    db_customer = query.first()
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     
-    # Update balance (payment increases balance / reduces debt)
     db_customer.current_balance += amount
-    
     db.commit()
     db.refresh(db_customer)
     

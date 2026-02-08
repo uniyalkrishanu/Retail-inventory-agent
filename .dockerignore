@@ -1,0 +1,11 @@
+# Folders to ignore from build context
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.env
+.git/
+*.db
+/data/
+/RetailInventoryData/

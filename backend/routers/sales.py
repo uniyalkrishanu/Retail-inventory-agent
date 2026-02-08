@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
-from sqlalchemy.orm import Session
 from typing import List, Optional
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 import models, schemas
 from database import get_db
+from .auth import get_current_user
 
 router = APIRouter(
     prefix="/sales",
@@ -10,16 +11,21 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.Sale)
-def create_sale(sale_data: schemas.SaleCreate, db: Session = Depends(get_db)):
+def create_sale(sale_data: schemas.SaleCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # 1. Calculate totals and check stock
     total_amount = 0.0
     total_cost = 0.0
     sale_items_db = []
 
     for item in sale_data.items:
-        trophy = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id).first()
+        # Isolation: Check if trophy belongs to current user
+        query = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id)
+        if current_user.role != "root":
+            query = query.filter(models.Trophy.owner_id == current_user.id)
+        
+        trophy = query.first()
         if not trophy:
-            raise HTTPException(status_code=404, detail=f"Trophy with ID {item.trophy_id} not found")
+            raise HTTPException(status_code=404, detail=f"Trophy with ID {item.trophy_id} not found or access denied")
         
         if trophy.quantity < item.quantity:
              raise HTTPException(status_code=400, detail=f"Not enough stock for {trophy.name}. Available: {trophy.quantity}")
@@ -51,10 +57,10 @@ def create_sale(sale_data: schemas.SaleCreate, db: Session = Depends(get_db)):
     if sale_data.payment_status == "Paid" and initial_paid == 0:
         initial_paid = total_amount
     elif sale_data.payment_status == "Partially Paid" and initial_paid == 0:
-        # Should ideally be provided, but default to 0 if missing
         initial_paid = 0.0
 
     new_sale = models.Sale(
+        owner_id=current_user.id,
         customer_name=sale_data.customer_name,
         customer_id=sale_data.customer_id,
         payment_status=sale_data.payment_status or "Paid",
@@ -74,17 +80,17 @@ def create_sale(sale_data: schemas.SaleCreate, db: Session = Depends(get_db)):
     
     # 4. Update Customer Ledger if linked
     if sale_data.customer_id:
-        customer = db.query(models.Customer).filter(models.Customer.id == sale_data.customer_id).first()
+        c_query = db.query(models.Customer).filter(models.Customer.id == sale_data.customer_id)
+        if current_user.role != "root":
+            c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+            
+        customer = c_query.first()
         if customer:
-            # The amount that goes to debt is (Total - Paid)
-            # Since current_balance < 0 means due, we subtract the unpaid portion
             unpaid_amount = total_amount - initial_paid
             if unpaid_amount > 0:
                 customer.current_balance -= unpaid_amount
             elif unpaid_amount < 0:
-                # Excess payment goes to advance (increases balance)
                 customer.current_balance += abs(unpaid_amount)
-            
             db.add(customer)
 
     db.commit()
@@ -92,8 +98,12 @@ def create_sale(sale_data: schemas.SaleCreate, db: Session = Depends(get_db)):
     return new_sale
 
 @router.post("/{sale_id}/pay")
-def pay_sale(sale_id: int, amount: Optional[float] = None, db: Session = Depends(get_db)):
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+def pay_sale(sale_id: int, amount: Optional[float] = None, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    s_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    if current_user.role != "root":
+        s_query = s_query.filter(models.Sale.owner_id == current_user.id)
+    
+    sale = s_query.first()
     if not sale:
         raise HTTPException(status_code=404, detail="Sale not found")
     
@@ -113,7 +123,10 @@ def pay_sale(sale_id: int, amount: Optional[float] = None, db: Session = Depends
     
     # Update customer balance
     if sale.customer_id:
-        customer = db.query(models.Customer).filter(models.Customer.id == sale.customer_id).first()
+        c_query = db.query(models.Customer).filter(models.Customer.id == sale.customer_id)
+        if current_user.role != "root":
+            c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+        customer = c_query.first()
         if customer:
             customer.current_balance += payment_made
             db.add(customer)
@@ -123,8 +136,12 @@ def pay_sale(sale_id: int, amount: Optional[float] = None, db: Session = Depends
     return sale
 
 @router.post("/{sale_id}/unpay")
-def unpay_sale(sale_id: int, db: Session = Depends(get_db)):
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+def unpay_sale(sale_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    s_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    if current_user.role != "root":
+        s_query = s_query.filter(models.Sale.owner_id == current_user.id)
+        
+    sale = s_query.first()
     if not sale:
         raise HTTPException(status_code=404, detail="Sale not found")
     
@@ -133,7 +150,10 @@ def unpay_sale(sale_id: int, db: Session = Depends(get_db)):
     sale.payment_status = "Due"
     
     if sale.customer_id and amount_to_revert > 0:
-        customer = db.query(models.Customer).filter(models.Customer.id == sale.customer_id).first()
+        c_query = db.query(models.Customer).filter(models.Customer.id == sale.customer_id)
+        if current_user.role != "root":
+            c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+        customer = c_query.first()
         if customer:
             customer.current_balance -= amount_to_revert
             db.add(customer)
@@ -143,26 +163,30 @@ def unpay_sale(sale_id: int, db: Session = Depends(get_db)):
     return sale
 
 @router.put("/{sale_id}")
-def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Depends(get_db)):
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    s_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    if current_user.role != "root":
+        s_query = s_query.filter(models.Sale.owner_id == current_user.id)
+        
+    sale = s_query.first()
     if not sale:
         raise HTTPException(status_code=404, detail="Sale not found")
 
     # 1. Update Customer Name Reflection
     if sale_update.customer_name and sale_update.customer_name != sale.customer_name:
-        old_name = sale.customer_name
         sale.customer_name = sale_update.customer_name
         
         # If linked to a registered customer, update the Customer record name as well
         if sale.customer_id:
-            customer = db.query(models.Customer).filter(models.Customer.id == sale.customer_id).first()
+            c_query = db.query(models.Customer).filter(models.Customer.id == sale.customer_id)
+            if current_user.role != "root":
+                c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+            customer = c_query.first()
             if customer:
                 customer.name = sale_update.customer_name
                 db.add(customer)
 
-    # 2. Update Payment Status (simple update, doesn't affect balance here if paid_amount is handled separately)
-    # However, if status changes to Paid, we should assume it's fully paid now? 
-    # Let's stick to status updates for now.
+    # 2. Update Payment Status
     if sale_update.payment_status:
         sale.payment_status = sale_update.payment_status
 
@@ -170,7 +194,10 @@ def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Dep
     if sale_update.items is not None:
         # Revert old stock
         for item in sale.items:
-            trophy = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id).first()
+            t_query = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id)
+            if current_user.role != "root":
+                t_query = t_query.filter(models.Trophy.owner_id == current_user.id)
+            trophy = t_query.first()
             if trophy:
                 trophy.quantity += item.quantity
         
@@ -182,7 +209,10 @@ def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Dep
         new_total_cost = 0.0
         
         for item in sale_update.items:
-            trophy = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id).first()
+            t_query = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id)
+            if current_user.role != "root":
+                t_query = t_query.filter(models.Trophy.owner_id == current_user.id)
+            trophy = t_query.first()
             if not trophy:
                 raise HTTPException(status_code=404, detail=f"Trophy {item.trophy_id} not found")
             
@@ -207,12 +237,13 @@ def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Dep
             db.add(new_sale_item)
 
         # Update customer balance for the difference in total amount
-        # If the bill increased by 50, and it's Due, the customer's balance decreases by 50 more.
         if sale.customer_id:
-            customer = db.query(models.Customer).filter(models.Customer.id == sale.customer_id).first()
+            c_query = db.query(models.Customer).filter(models.Customer.id == sale.customer_id)
+            if current_user.role != "root":
+                c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+            customer = c_query.first()
             if customer:
                 diff = new_total_amount - sale.total_amount
-                # If they are paying later (Due/Partial), the difference affects their ledger
                 if sale.payment_status != "Paid":
                     customer.current_balance -= diff
                 db.add(customer)
@@ -225,23 +256,32 @@ def update_sale(sale_id: int, sale_update: schemas.SaleUpdate, db: Session = Dep
     return sale
 
 @router.delete("/{sale_id}")
-def delete_sale(sale_id: int, db: Session = Depends(get_db)):
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+def delete_sale(sale_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    s_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    if current_user.role != "root":
+        s_query = s_query.filter(models.Sale.owner_id == current_user.id)
+        
+    sale = s_query.first()
     if not sale:
         raise HTTPException(status_code=404, detail="Sale not found")
     
     # 1. Revert stock
     for item in sale.items:
-        trophy = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id).first()
+        t_query = db.query(models.Trophy).filter(models.Trophy.id == item.trophy_id)
+        if current_user.role != "root":
+            t_query = t_query.filter(models.Trophy.owner_id == current_user.id)
+        trophy = t_query.first()
         if trophy:
             trophy.quantity += item.quantity
             db.add(trophy)
     
     # 2. Revert customer balance
     if sale.customer_id:
-        customer = db.query(models.Customer).filter(models.Customer.id == sale.customer_id).first()
+        c_query = db.query(models.Customer).filter(models.Customer.id == sale.customer_id)
+        if current_user.role != "root":
+            c_query = c_query.filter(models.Customer.owner_id == current_user.id)
+        customer = c_query.first()
         if customer:
-            # We add back the unpaid portion (which was subtracted as debt)
             unpaid_portion = sale.total_amount - sale.paid_amount
             customer.current_balance += unpaid_portion
             db.add(customer)
@@ -253,9 +293,12 @@ def delete_sale(sale_id: int, db: Session = Depends(get_db)):
     return {"message": "Sale deleted and stock/ledger reverted successfully"}
 
 @router.get("/customers", response_model=List[str])
-def get_customers(db: Session = Depends(get_db)):
+def get_customers(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # Fetch unique customer names
-    customers = db.query(models.Sale.customer_name).distinct().filter(models.Sale.customer_name != None).all()
+    query = db.query(models.Sale.customer_name).distinct().filter(models.Sale.customer_name != None)
+    if current_user.role != "root":
+        query = query.filter(models.Sale.owner_id == current_user.id)
+    customers = query.all()
     return [c[0] for c in customers if c[0]]
 
 @router.get("/", response_model=List[schemas.Sale])
@@ -267,9 +310,12 @@ def get_sales(
     customer_name: str = None, 
     customer_id: int = None,
     invoice_number: str = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     query = db.query(models.Sale)
+    if current_user.role != "root":
+        query = query.filter(models.Sale.owner_id == current_user.id)
 
     if start_date:
         query = query.filter(models.Sale.timestamp >= start_date)
