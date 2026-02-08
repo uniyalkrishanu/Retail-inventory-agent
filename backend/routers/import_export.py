@@ -14,6 +14,7 @@ router = APIRouter(
 async def import_inventory(
     file: UploadFile = File(...), 
     import_type: str = "inventory",  # "inventory" or "purchase"
+    payment_status: str = "Due",  # "Paid" or "Due" - for purchase imports
     db: Session = Depends(get_db)
 ):
     if not file.filename.endswith(('.xlsx', '.xls', '.csv')):
@@ -116,18 +117,39 @@ async def import_inventory(
             
             # --- IF NEW PURCHASE ---
 
-            # 1. Get or Create Vendor
+            # 1. Get or Create/Update Vendor
             vendor = db.query(models.Vendor).filter(models.Vendor.name == vendor_name).first()
+            first_row = group.iloc[0]
+            
+            # Helper to check if value is "blank"
+            def is_blank(val):
+                return pd.isna(val) or str(val).strip() == ""
+
+            vendor_data = {
+                "address": first_row.get('vendor_address'),
+                "mobile": str(first_row.get('vendor_mobile')) if not is_blank(first_row.get('vendor_mobile')) else None,
+                "email": first_row.get('vendor_email') if not is_blank(first_row.get('vendor_email')) else None
+            }
+
             if not vendor:
-                first_row = group.iloc[0]
                 vendor = models.Vendor(
                     name=vendor_name,
-                    address=first_row.get('vendor_address'),
-                    mobile=str(first_row.get('vendor_mobile')) if pd.notna(first_row.get('vendor_mobile')) else None,
-                    email=first_row.get('vendor_email') if pd.notna(first_row.get('vendor_email')) else None
+                    address=vendor_data["address"] if not is_blank(vendor_data["address"]) else None,
+                    mobile=vendor_data["mobile"],
+                    email=vendor_data["email"]
                 )
                 db.add(vendor)
-                db.flush() 
+            else:
+                # Update existing vendor ONLY if the new data is NOT blank
+                if not is_blank(vendor_data["address"]):
+                    vendor.address = vendor_data["address"]
+                if not is_blank(vendor_data["mobile"]):
+                    vendor.mobile = vendor_data["mobile"]
+                if not is_blank(vendor_data["email"]):
+                    vendor.email = vendor_data["email"]
+                db.add(vendor)
+            
+            db.flush() 
             
             # 2. Create Purchase Record
             purchase = models.Purchase(
@@ -135,7 +157,8 @@ async def import_inventory(
                 total_amount=0.0,
                 is_active=True,
                 content_hash=content_hash,
-                invoice_number=invoice_number
+                invoice_number=invoice_number,
+                payment_status=payment_status
             )
             db.add(purchase)
             db.flush()
@@ -178,6 +201,12 @@ async def import_inventory(
                 total_amount += (quantity * cost)
             
             purchase.total_amount = total_amount
+            
+            # Update vendor balance: if Due, we owe them (decrease balance)
+            # If Paid, balance stays the same (payment already made)
+            if payment_status == "Due":
+                vendor.current_balance -= total_amount
+            
             imported_purchases += 1
 
         db.commit()
@@ -313,4 +342,30 @@ def export_inventory(db: Session = Depends(get_db)):
         stream,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": "attachment; filename=inventory_export.xlsx"}
+    )
+
+@router.get("/template/purchase")
+def get_purchase_template():
+    # Headers expected by import logic
+    headers = [
+        'vendor_name', 'vendor_address', 'vendor_mobile', 'vendor_email', 
+        'invoice_number', 'sku', 'product_name', 'quantity', 
+        'unit_cost', 'selling_price', 'category', 'material'
+    ]
+    
+    # Create an empty DataFrame with these headers
+    df = pd.DataFrame(columns=headers)
+    
+    # Removed sample data as per user request
+    
+    stream = io.BytesIO()
+    with pd.ExcelWriter(stream, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+    
+    stream.seek(0)
+    
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=purchase_order_template.xlsx"}
     )

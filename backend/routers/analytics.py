@@ -28,6 +28,14 @@ def get_dashboard_stats(
     total_revenue = sales_query.with_entities(func.sum(models.Sale.total_amount)).scalar() or 0.0
     total_profit = sales_query.with_entities(func.sum(models.Sale.total_profit)).scalar() or 0.0
 
+    # Purchase Analytics (Expenses)
+    purchase_query = db.query(models.Purchase).filter(
+        models.Purchase.timestamp >= start_date, 
+        models.Purchase.timestamp <= end_date,
+        models.Purchase.is_active == True
+    )
+    total_expense = purchase_query.with_entities(func.sum(models.Purchase.total_amount)).scalar() or 0.0
+
     # Stock Value
     stock_value = db.query(func.sum(models.Trophy.quantity * models.Trophy.cost_price)).scalar() or 0.0
 
@@ -36,21 +44,33 @@ def get_dashboard_stats(
         "total_sales_count": total_sales,
         "total_revenue": total_revenue,
         "total_profit": total_profit,
+        "total_expense": total_expense,
         "current_stock_value": stock_value
     }
 
 @router.get("/sales_trend")
 def get_sales_trend(
-    days: int = 7,
+    days: Optional[int] = 7,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     db: Session = Depends(database.get_db)
 ):
-    start_date = datetime.utcnow() - timedelta(days=days)
+    if start_date and end_date:
+        # Use provided range
+        pass
+    else:
+        # Fallback to days
+        start_date = datetime.utcnow() - timedelta(days=days)
+        end_date = datetime.utcnow()
     
     # Query sales grouped by date
     sales = db.query(
         func.date(models.Sale.timestamp).label('date'),
         func.sum(models.Sale.total_amount).label('amount'),
         func.sum(models.Sale.total_profit).label('profit')
-    ).filter(models.Sale.timestamp >= start_date).group_by(func.date(models.Sale.timestamp)).all()
+    ).filter(
+        models.Sale.timestamp >= start_date,
+        models.Sale.timestamp <= end_date
+    ).group_by(func.date(models.Sale.timestamp)).order_by(func.date(models.Sale.timestamp)).all()
 
     return [{"date": s.date, "amount": s.amount, "profit": s.profit} for s in sales]

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import api from '../api';
-import { Upload, Download, Plus, Trash2, Edit, X } from 'lucide-react';
+import { Download, Trash2, Edit, X, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, Filter } from 'lucide-react';
 
 const InventoryList = () => {
     const [items, setItems] = useState([]);
@@ -9,7 +9,8 @@ const InventoryList = () => {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
-    const [importType, setImportType] = useState('inventory'); // 'inventory' or 'purchase'
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [showLowStockOnly, setShowLowStockOnly] = useState(false); // Added
 
     const [newItem, setNewItem] = useState({
         name: '', category: '', material: '', quantity: 0, cost_price: 0, selling_price: 0, sku: '', min_stock_level: 5
@@ -39,23 +40,38 @@ const InventoryList = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            await api.post(`/import_export/import?import_type=${importType}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            alert('Import Successful');
-            fetchInventory();
-        } catch (error) {
-            alert('Import Failed: ' + (error.response?.data?.detail || error.message));
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
         }
+        setSortConfig({ key, direction });
     };
+
+    const sortedItems = useMemo(() => {
+        let sortableItems = [...items];
+        if (sortConfig.key !== null) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [items, sortConfig]);
+
+    const displayedItems = useMemo(() => {
+        let result = sortedItems;
+        if (showLowStockOnly) {
+            result = result.filter(item => item.quantity <= (item.min_stock_level || 5));
+        }
+        return result;
+    }, [sortedItems, showLowStockOnly]);
+
 
     const handleExport = async () => {
         try {
@@ -71,11 +87,6 @@ const InventoryList = () => {
         }
     };
 
-    const handleOpenAdd = () => {
-        setIsEditing(false);
-        setNewItem({ name: '', category: '', material: '', quantity: 0, cost_price: 0, selling_price: 0, sku: '', min_stock_level: 5 });
-        setShowModal(true);
-    }
 
     const handleOpenEdit = (item) => {
         setIsEditing(true);
@@ -99,128 +110,165 @@ const InventoryList = () => {
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-semibold">Inventory</h2>
-                <div className="flex space-x-2 items-center">
-                    {/* Search Input */}
-                    <input
-                        type="text"
-                        placeholder="Search items..."
-                        className="border p-2 rounded"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-3xl font-black text-gray-800 tracking-tight">Inventory</h2>
+                    <p className="text-gray-400 text-sm font-medium">Manage your stock and items efficiently.</p>
+                </div>
 
-                    <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Item
-                    </button>
-
-                    <div className="flex items-center space-x-2 bg-white border rounded px-2">
-                        <select
-                            value={importType}
-                            onChange={(e) => setImportType(e.target.value)}
-                            className="p-2 bg-transparent outline-none cursor-pointer"
-                        >
-                            <option value="inventory">Inventory Update</option>
-                            <option value="purchase">Purchase Order</option>
-                        </select>
-                        <label className="flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer text-sm">
-                            <Upload className="w-3 h-3 mr-1" />
-                            Upload
-                            <input type="file" className="hidden" onChange={handleFileUpload} accept=".xlsx, .xls, .csv" />
-                        </label>
+                <div className="flex gap-3">
+                    <div className="relative group">
+                        <input
+                            type="text"
+                            placeholder="Search articles..."
+                            className="bg-white border border-gray-100 rounded-2xl py-3 pl-12 pr-6 text-sm font-bold shadow-sm focus:ring-4 focus:ring-[#5D9FD6]/10 outline-none w-64 transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                            {/* Small search icon placeholder if lucide integrated */}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
                     </div>
 
-                    <button onClick={handleExport} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        <Download className="w-4 h-4 mr-2" />
+                    <button
+                        onClick={() => setShowLowStockOnly(!showLowStockOnly)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-sm ${showLowStockOnly ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-white text-gray-600 border border-gray-100 hover:bg-gray-50'}`}
+                    >
+                        <AlertTriangle size={16} className={showLowStockOnly ? 'text-red-500' : 'text-gray-400'} />
+                        {showLowStockOnly ? 'Low Stock Only' : 'Show Low Stock'}
+                    </button>
+
+                    <button onClick={handleExport} className="flex items-center gap-2 px-6 py-3 bg-[#5D9FD6] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#5D9FD6]/20 hover:bg-[#4A8FC6] transition-all active:scale-95">
+                        <Download size={16} />
                         Export
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full leading-normal">
+            <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
+                <table className="w-full">
                     <thead>
-                        <tr>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                            {/* SKU Hidden as requested */}
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Category</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Stock</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cost</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sell Price</th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        <tr className="bg-gray-50/50">
+                            {[
+                                { key: 'name', label: 'Item Name' },
+                                { key: 'category', label: 'Category' },
+                                { key: 'quantity', label: 'Availability' },
+                                { key: 'cost_price', label: 'Cost' },
+                                { key: 'selling_price', label: 'Selling Price' }
+                            ].map(({ key, label }) => (
+                                <th
+                                    key={key}
+                                    onClick={() => requestSort(key)}
+                                    className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-900 transition-colors"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        {label}
+                                        {sortConfig.key === key && (
+                                            sortConfig.direction === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+                                        )}
+                                    </div>
+                                </th>
+                            ))}
+                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {items.map((item) => (
-                            <tr key={item.id}>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{item.name}</td>
-                                {/* <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{item.sku}</td> */}
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{item.category}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${item.quantity <= item.min_stock_level ? 'text-red-900' : 'text-green-900'}`}>
-                                        <span aria-hidden className={`absolute inset-0 ${item.quantity <= item.min_stock_level ? 'bg-red-200' : 'bg-green-200'} opacity-50 rounded-full`}></span>
-                                        <span className="relative">{item.quantity}</span>
-                                    </span>
+                    <tbody className="divide-y divide-gray-50">
+                        {displayedItems.length > 0 ? displayedItems.map((item) => (
+                            <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
+                                <td className="px-8 py-6">
+                                    <p className="text-sm font-extrabold text-gray-800">{item.name}</p>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">{item.sku || 'No SKU'}</p>
                                 </td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">₹{item.cost_price}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">₹{item.selling_price}</td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <button onClick={() => handleOpenEdit(item)} className="text-blue-600 hover:text-blue-900 mx-2"><Edit size={16} /></button>
+                                <td className="px-8 py-6">
+                                    <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-bold">{item.category}</span>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full ${item.quantity <= (item.min_stock_level || 5) ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                                            <span className={`text-sm font-black ${item.quantity <= (item.min_stock_level || 5) ? 'text-red-600' : 'text-gray-800'}`}>
+                                                {item.quantity} Units
+                                            </span>
+                                        </div>
+                                        {item.quantity <= (item.min_stock_level || 5) && (
+                                            <span className="text-[10px] font-bold text-red-400 mt-1 uppercase underline underline-offset-2">Low Stock</span>
+                                        )}
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6 text-sm font-bold text-gray-500">₹{item.cost_price.toFixed(2)}</td>
+                                <td className="px-8 py-6 text-sm font-black text-gray-800">₹{item.selling_price.toFixed(2)}</td>
+                                <td className="px-8 py-6 text-right">
+                                    <button
+                                        onClick={() => handleOpenEdit(item)}
+                                        className="p-3 text-[#5D9FD6] hover:bg-[#5D9FD6] hover:text-white rounded-2xl transition-all"
+                                        title="Edit Item"
+                                    >
+                                        <Edit size={18} />
+                                    </button>
                                 </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan="6" className="py-20 text-center">
+                                    <p className="text-gray-300 font-black uppercase tracking-widest text-xs italic">No items found in inventory</p>
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
 
-            {/* Add/Edit Item Modal */}
+            {/* Redesigned Minimalist Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white p-6 rounded-lg max-w-lg w-full">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold">{isEditing ? 'Edit Item' : 'Add New Item'}</h3>
-                            <button onClick={() => setShowModal(false)}><X className="w-6 h-6" /></button>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white p-10 rounded-[40px] shadow-2xl max-w-2xl w-full scale-in border border-white">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-800 tracking-tight">{isEditing ? 'Edit Article' : 'New Article'}</h3>
+                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Update your stock information</p>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-gray-700 transition-all">
+                                <X size={24} />
+                            </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Name</label>
-                                <input className="border p-2 rounded w-full" placeholder="Name" value={newItem.name} onChange={e => setNewItem({ ...newItem, name: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">SKU</label>
-                                <input className="border p-2 rounded w-full" placeholder="SKU" value={newItem.sku} onChange={e => setNewItem({ ...newItem, sku: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Category</label>
-                                <input className="border p-2 rounded w-full" placeholder="Category" value={newItem.category} onChange={e => setNewItem({ ...newItem, category: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Material</label>
-                                <input className="border p-2 rounded w-full" placeholder="Material" value={newItem.material} onChange={e => setNewItem({ ...newItem, material: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Quantity</label>
-                                <input type="number" className="border p-2 rounded w-full" placeholder="Quantity" value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: parseInt(e.target.value) })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Min Stock Level</label>
-                                <input type="number" className="border p-2 rounded w-full" placeholder="Min Stock Level" value={newItem.min_stock_level} onChange={e => setNewItem({ ...newItem, min_stock_level: parseInt(e.target.value) })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Cost Price (₹)</label>
-                                <input type="number" className="border p-2 rounded w-full" placeholder="Cost Price (₹)" value={newItem.cost_price} onChange={e => setNewItem({ ...newItem, cost_price: parseFloat(e.target.value) })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Selling Price (₹)</label>
-                                <input type="number" className="border p-2 rounded w-full" placeholder="Selling Price (₹)" value={newItem.selling_price} onChange={e => setNewItem({ ...newItem, selling_price: parseFloat(e.target.value) })} />
-                            </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            {[
+                                { label: 'Item Name', key: 'name', type: 'text' },
+                                { label: 'SKU / Code', key: 'sku', type: 'text' },
+                                { label: 'Category', key: 'category', type: 'text' },
+                                { label: 'Material', key: 'material', type: 'text' },
+                                { label: 'Stock Quantity', key: 'quantity', type: 'number' },
+                                { label: 'Alert Level', key: 'min_stock_level', type: 'number' },
+                                { label: 'Cost Price (₹)', key: 'cost_price', type: 'number' },
+                                { label: 'Selling Price (₹)', key: 'selling_price', type: 'number' },
+                            ].map((field) => (
+                                <div key={field.key}>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-1">{field.label}</label>
+                                    <input
+                                        type={field.type}
+                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-[#5D9FD6] focus:bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none transition-all"
+                                        placeholder={`Enter ${field.label.toLowerCase()}`}
+                                        value={newItem[field.key]}
+                                        onChange={e => setNewItem({ ...newItem, [field.key]: field.type === 'number' ? (field.key.includes('price') ? parseFloat(e.target.value) : parseInt(e.target.value)) : e.target.value })}
+                                    />
+                                </div>
+                            ))}
                         </div>
-                        <button onClick={handleSaveItem} className="mt-6 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
-                            {isEditing ? 'Update Item' : 'Add Item'}
-                        </button>
+
+                        <div className="flex gap-4 mt-10">
+                            <button onClick={() => setShowModal(false)} className="flex-1 py-4 bg-gray-50 text-gray-400 font-black rounded-3xl hover:bg-gray-100 transition-all uppercase tracking-widest text-xs">
+                                Discard
+                            </button>
+                            <button
+                                onClick={handleSaveItem}
+                                className="flex-1 py-4 bg-[#5D9FD6] text-white font-black rounded-3xl shadow-xl shadow-[#5D9FD6]/20 hover:bg-[#4A8FC6] transition-all uppercase tracking-widest text-xs"
+                            >
+                                {isEditing ? 'Confirm Changes' : 'Create Article'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

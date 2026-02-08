@@ -29,6 +29,49 @@ def read_items(skip: int = 0, limit: int = 100, search: str = None, db: Session 
     items = query.offset(skip).limit(limit).all()
     return items
 
+@router.get("/top-sellers")
+def get_top_sellers(limit: int = 5, db: Session = Depends(get_db)):
+    """
+    Get top selling products across all customers in the last 30 days.
+    """
+    from sqlalchemy import func
+    import datetime
+    
+    thirty_days_ago = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    
+    # Get products ordered by total quantity sold in last 30 days
+    results = db.query(
+        models.Trophy.id,
+        models.Trophy.name,
+        models.Trophy.sku,
+        models.Trophy.selling_price,
+        models.Trophy.quantity.label("stock"),
+        func.sum(models.SaleItem.quantity).label("total_sold")
+    ).join(
+        models.SaleItem, models.SaleItem.trophy_id == models.Trophy.id
+    ).join(
+        models.Sale, models.Sale.id == models.SaleItem.sale_id
+    ).filter(
+        models.Sale.timestamp >= thirty_days_ago
+    ).group_by(
+        models.Trophy.id
+    ).order_by(
+        func.sum(models.SaleItem.quantity).desc()
+    ).limit(limit).all()
+    
+    top_sellers = []
+    for r in results:
+        top_sellers.append({
+            "id": r.id,
+            "name": r.name,
+            "sku": r.sku,
+            "selling_price": r.selling_price,
+            "stock": r.stock,
+            "total_sold": r.total_sold
+        })
+    
+    return top_sellers
+
 @router.get("/{item_id}", response_model=schemas.Trophy)
 def read_item(item_id: int, db: Session = Depends(get_db)):
     db_item = db.query(models.Trophy).filter(models.Trophy.id == item_id).first()

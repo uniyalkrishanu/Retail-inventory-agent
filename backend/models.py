@@ -38,7 +38,8 @@ class Sale(Base):
     invoice_number = Column(String, index=True, nullable=True)
     gstin = Column(String, nullable=True)
     tax_amount = Column(Float, default=0.0)
-    payment_status = Column(String, default="Paid") # "Paid" or "Due"
+    payment_status = Column(String, default="Paid") # "Paid", "Due", or "Partially Paid"
+    paid_amount = Column(Float, default=0.0) # Added to track partial payments
 
     customer = relationship("Customer")
     items = relationship("SaleItem", back_populates="sale")
@@ -56,6 +57,10 @@ class SaleItem(Base):
     sale = relationship("Sale", back_populates="items")
     trophy = relationship("Trophy")
 
+    @property
+    def trophy_name(self):
+        return self.trophy.name if self.trophy else "Unknown Item"
+
 class Vendor(Base):
     __tablename__ = "vendors"
 
@@ -64,6 +69,7 @@ class Vendor(Base):
     address = Column(String, nullable=True)
     mobile = Column(String, nullable=True)
     email = Column(String, nullable=True)
+    current_balance = Column(Float, default=0.0)  # <0: We owe vendor, >0: Vendor owes us (advance)
 
 class Purchase(Base):
     __tablename__ = "purchases"
@@ -76,6 +82,8 @@ class Purchase(Base):
     content_hash = Column(String, index=True, nullable=True)
     invoice_number = Column(String, index=True, nullable=True)
     stock_reverted = Column(Boolean, default=False)
+    payment_status = Column(String, default="Due")  # "Paid", "Due", or "Partially Paid"
+    paid_amount = Column(Float, default=0.0)
 
     vendor = relationship("Vendor")
     items = relationship("PurchaseItem", back_populates="purchase", cascade="all, delete-orphan")
@@ -91,3 +99,7 @@ class PurchaseItem(Base):
 
     purchase = relationship("Purchase", back_populates="items")
     trophy = relationship("Trophy")
+
+    @property
+    def trophy_name(self):
+        return self.trophy.name if self.trophy else "Unknown Item"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin, IndianRupee } from 'lucide-react';
+import api from '../api';
+import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin, IndianRupee, FileText, AlertCircle } from 'lucide-react';
 
 const CustomersPage = () => {
     const [customers, setCustomers] = useState([]);
@@ -16,6 +17,12 @@ const CustomersPage = () => {
         address: '',
         current_balance: 0.0
     });
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false); // Consistent with Vendor
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentType, setPaymentType] = useState('full'); // 'full' or 'partial'
+    const [isDues, setIsDues] = useState(false);
+    const [showDuesOnly, setShowDuesOnly] = useState(false); // Added
 
     useEffect(() => {
         fetchCustomers();
@@ -23,13 +30,9 @@ const CustomersPage = () => {
 
     const fetchCustomers = async () => {
         try {
-            let url = 'http://localhost:8000/customers/';
-            if (searchTerm) {
-                url += `?search=${searchTerm}`;
-            }
-            const response = await fetch(url);
-            const data = await response.json();
-            setCustomers(data);
+            const url = searchTerm ? `/customers/?search=${searchTerm}` : '/customers/';
+            const response = await api.get(url);
+            setCustomers(response.data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching customers:', error);
@@ -48,25 +51,14 @@ const CustomersPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = currentCustomer
-                ? `http://localhost:8000/customers/${currentCustomer.id}`
-                : 'http://localhost:8000/customers/';
-
-            const method = currentCustomer ? 'PUT' : 'POST';
-
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                setIsModalOpen(false);
-                fetchCustomers();
-                resetForm();
+            if (currentCustomer) {
+                await api.put(`/customers/${currentCustomer.id}`, formData);
+            } else {
+                await api.post('/customers/', formData);
             }
+            setIsModalOpen(false);
+            fetchCustomers();
+            resetForm();
         } catch (error) {
             console.error('Error saving customer:', error);
         }
@@ -101,98 +93,190 @@ const CustomersPage = () => {
 
     const handleViewHistory = async (customer) => {
         setCurrentCustomer(customer);
-        setShowHistory(true);
+        setShowHistoryModal(true);
         try {
-            const response = await fetch(`http://localhost:8000/sales/?customer_id=${customer.id}`);
-            const data = await response.json();
-            setCustomerHistory(data);
+            const response = await api.get(`/sales/?customer_id=${customer.id}`);
+            setCustomerHistory(response.data);
         } catch (error) {
             console.error("Failed to fetch history", error);
         }
     }
 
-    return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-gray-800">Customer Ledger</h1>
-                <button
-                    onClick={() => openModal()}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
-                >
-                    <Plus size={20} />
-                    Add Customer
-                </button>
-            </div>
+    const openPaymentModal = (customer) => {
+        setCurrentCustomer(customer);
+        setPaymentAmount('');
+        setIsDues(false);
+        setShowPaymentModal(true);
+    };
 
-            <div className="bg-white p-4 rounded-lg shadow-md">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search customers..."
-                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+    const handleRegisterPayment = async () => {
+        let amountToPay = 0;
+
+        if (isDues) {
+            amountToPay = -parseFloat(paymentAmount);
+        } else {
+            amountToPay = paymentType === 'full'
+                ? Math.abs(currentCustomer.current_balance)
+                : parseFloat(paymentAmount);
+        }
+
+        if (!amountToPay || Math.abs(amountToPay) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        try {
+            const res = await api.post(`/customers/${currentCustomer.id}/payments?amount=${amountToPay}`);
+            alert(res.data.message);
+            setShowPaymentModal(false);
+            setPaymentType('full');
+            setPaymentAmount('');
+            fetchCustomers();
+        } catch (error) {
+            console.error('Error registering payment:', error);
+            alert('Error registering payment');
+        }
+    };
+
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedCustomers = React.useMemo(() => {
+        let result = [...customers];
+
+        if (showDuesOnly) {
+            result = result.filter(c => c.current_balance < 0);
+        }
+
+        if (sortConfig.key !== null) {
+            result.sort((a, b) => {
+                const aVal = a[sortConfig.key] || '';
+                const bVal = b[sortConfig.key] || '';
+                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+        return result;
+    }, [customers, sortConfig, showDuesOnly]);
+
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-3xl font-black text-gray-800 tracking-tight">Customer Ledger</h2>
+                    <p className="text-gray-400 text-sm font-medium">Track client debts, advances, and transaction history.</p>
+                </div>
+
+                <div className="flex gap-3">
+                    <div className="relative group">
+                        <input
+                            type="text"
+                            placeholder="Find clients..."
+                            className="bg-white border border-gray-100 rounded-2xl py-3 pl-12 pr-6 text-sm font-bold shadow-sm focus:ring-4 focus:ring-[#5D9FD6]/10 outline-none w-64 transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => setShowDuesOnly(!showDuesOnly)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-sm ${showDuesOnly ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-white text-gray-600 border border-gray-100 hover:bg-gray-50'}`}
+                    >
+                        <AlertCircle size={16} className={showDuesOnly ? 'text-red-500' : 'text-gray-400'} />
+                        {showDuesOnly ? 'Showing Dues' : 'Show Pending Dues'}
+                    </button>
+
+                    <button
+                        onClick={() => openModal()}
+                        className="flex items-center gap-2 px-6 py-3 bg-[#5D9FD6] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#5D9FD6]/20 hover:bg-[#4A8FC6] transition-all active:scale-95"
+                    >
+                        <Plus size={16} />
+                        Add Client
+                    </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {customers.map((customer) => (
-                    <div key={customer.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-blue-100 p-3 rounded-full">
-                                    <User className="text-blue-600" size={24} />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">{customer.name}</h3>
-                                    <p className="text-sm text-gray-500">ID: {customer.id}</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => openModal(customer)}
-                                className="text-gray-400 hover:text-blue-600"
-                            >
-                                <Edit size={20} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <Phone size={18} />
-                                <span>{customer.mobile || 'No Mobile'}</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <Mail size={18} />
-                                <span>{customer.email || 'No Email'}</span>
-                            </div>
-
-                            <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                                <span className="text-gray-600 font-medium">Current Balance:</span>
-                                <span className={`text-xl font-bold ${customer.current_balance > 0 ? 'text-green-600' :
-                                    customer.current_balance < 0 ? 'text-red-600' : 'text-gray-800'
-                                    }`}>
-                                    ₹{customer.current_balance.toFixed(2)}
-                                </span>
-                            </div>
-                            <div className="text-xs text-right mt-1">
-                                {customer.current_balance > 0 ? '(Advance)' : customer.current_balance < 0 ? '(Pending Due)' : '(Settled)'}
-                            </div>
-
-                            <button
-                                onClick={() => handleViewHistory(customer)}
-                                className="w-full mt-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 flex items-center justify-center gap-2"
-                            >
-                                <IndianRupee size={16} /> View Ledger History
-                            </button>
-
-                        </div>
-                    </div>
-                ))}
+            <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
+                <table className="w-full">
+                    <thead>
+                        <tr className="bg-gray-50/50">
+                            {[
+                                { key: 'name', label: 'Client Identity' },
+                                { key: 'mobile', label: 'Contact Info' },
+                                { key: 'current_balance', label: 'Account Status' }
+                            ].map(({ key, label }) => (
+                                <th
+                                    key={key}
+                                    onClick={() => requestSort(key)}
+                                    className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-900 transition-colors"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        {label}
+                                        {sortConfig.key === key && (
+                                            sortConfig.direction === 'asc' ? <span className="text-[#5D9FD6]">↑</span> : <span className="text-[#5D9FD6]">↓</span>
+                                        )}
+                                    </div>
+                                </th>
+                            ))}
+                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                        {sortedCustomers.length > 0 ? sortedCustomers.map((customer) => (
+                            <tr key={customer.id} className="hover:bg-gray-50/50 transition-colors group">
+                                <td className="px-8 py-6">
+                                    <p className="text-sm font-extrabold text-gray-800">{customer.name}</p>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter max-w-xs truncate">{customer.address || 'Retail Customer'}</p>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <div className="flex flex-col">
+                                        <p className="text-xs font-bold text-gray-700">{customer.mobile || 'No Phone'}</p>
+                                        <p className="text-[10px] font-medium text-gray-400 lowercase">{customer.email || '-'}</p>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <div className="flex flex-col items-start border-l-2 pl-4 border-gray-50 group-hover:border-[#5D9FD6]/20 transition-all">
+                                        <span className={`text-sm font-black ${customer.current_balance < 0 ? 'text-red-500' : customer.current_balance > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                                            ₹{Math.abs(customer.current_balance || 0).toLocaleString()}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">
+                                            {customer.current_balance < 0 ? 'Outstanding' : customer.current_balance > 0 ? 'Advance Balance' : 'Settled'}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6 text-right">
+                                    <div className="flex justify-end gap-1">
+                                        <button onClick={() => handleViewHistory(customer)} title="View History" className="p-3 text-blue-500 hover:bg-blue-50 rounded-2xl transition-all"><FileText size={18} /></button>
+                                        <button onClick={() => openPaymentModal(customer)} title="Record Payment" className="p-3 text-green-600 hover:bg-green-50 rounded-2xl transition-all"><IndianRupee size={18} /></button>
+                                        <button onClick={() => openModal(customer)} title="Edit Customer" className="p-3 text-[#5D9FD6] hover:bg-blue-50 rounded-2xl transition-all"><Edit size={18} /></button>
+                                        <button onClick={() => {/* Delete logic if added elsewhere */ }} title="Delete Customer" className="p-3 text-red-500 hover:bg-red-50 rounded-2xl transition-all"><Trash2 size={18} /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan="4" className="py-20 text-center">
+                                    <p className="text-gray-300 font-black uppercase tracking-widest text-xs italic">No client records found</p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {isModalOpen && (
+
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg w-full max-w-md p-6">
                         <h2 className="text-2xl font-bold mb-4">
@@ -271,18 +355,18 @@ const CustomersPage = () => {
                         </form>
                     </div>
                 </div>
-            )}
+            )
+            }
 
             {/* History Modal */}
-            {showHistory && currentCustomer && (
+            {showHistoryModal && currentCustomer && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-lg w-full max-w-2xl p-6 max-h-[80vh] flex flex-col">
                         <div className="flex justify-between items-center mb-4">
                             <div>
-                                <h2 className="text-2xl font-bold">Transaction History</h2>
-                                <p className="text-gray-500">{currentCustomer.name}</p>
+                                <h2 className="text-2xl font-bold">Sales History - {currentCustomer.name}</h2>
                             </div>
-                            <button onClick={() => setShowHistory(false)} className="text-gray-500 hover:text-gray-800">
+                            <button onClick={() => setShowHistoryModal(false)} className="text-gray-500 hover:text-gray-800">
                                 <span className="text-2xl">×</span>
                             </button>
                         </div>
@@ -328,7 +412,7 @@ const CustomersPage = () => {
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Current Net Balance</p>
                                 <p className={`text-2xl font-bold ${currentCustomer.current_balance > 0 ? 'text-green-600' :
-                                        currentCustomer.current_balance < 0 ? 'text-red-600' : 'text-gray-800'
+                                    currentCustomer.current_balance < 0 ? 'text-red-600' : 'text-gray-800'
                                     }`}>
                                     ₹{currentCustomer.current_balance.toFixed(2)}
                                 </p>
@@ -336,8 +420,107 @@ const CustomersPage = () => {
                         </div>
                     </div>
                 </div>
+            )
+            }
+
+            {/* Payment Modal */}
+            {showPaymentModal && currentCustomer && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl scale-in">
+                        <div className="flex justify-between items-start mb-6">
+                            <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">{isDues ? 'Add Dues/Debt' : 'Register Payment'}</h2>
+                            <button onClick={() => setShowPaymentModal(false)} className="text-gray-300 hover:text-gray-600 text-2xl">&times;</button>
+                        </div>
+
+                        <div className="space-y-1 mb-6">
+                            <p className="text-gray-500 font-bold">Party: <span className="text-gray-800">{currentCustomer.name}</span></p>
+                            <p className={`font-bold ${currentCustomer.current_balance < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                Balance: ₹{Math.abs(currentCustomer.current_balance || 0).toFixed(2)} {currentCustomer.current_balance < 0 ? '(Due)' : '(Advance)'}
+                            </p>
+                        </div>
+
+                        <div className="flex bg-gray-100 p-1.5 rounded-xl mb-8">
+                            <button
+                                onClick={() => setIsDues(false)}
+                                className={`flex-1 py-1.5 text-[10px] font-black rounded-lg transition-all duration-200 ${!isDues ? 'bg-white shadow-sm text-green-600' : 'text-gray-400'}`}
+                            >
+                                PAYMENT FROM CUSTOMER
+                            </button>
+                            <button
+                                onClick={() => setIsDues(true)}
+                                className={`flex-1 py-1.5 text-[10px] font-black rounded-lg transition-all duration-200 ${isDues ? 'bg-white shadow-sm text-red-600' : 'text-gray-400'}`}
+                            >
+                                ADD DUES/DEBT
+                            </button>
+                        </div>
+
+                        {!isDues && currentCustomer.current_balance < 0 && (
+                            <div className="space-y-3 mb-8">
+                                <div
+                                    onClick={() => setPaymentType('full')}
+                                    className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentType === 'full' ? 'border-green-500 bg-green-50/50 ring-4 ring-green-50' : 'border-gray-100 hover:border-gray-200'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === 'full' ? 'border-green-500 bg-green-500' : 'border-gray-200'}`}>
+                                            {paymentType === 'full' && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-sm" />}
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-gray-800 uppercase text-[10px] tracking-tight">Full Settlement</p>
+                                            <p className="text-[10px] text-gray-500 font-bold">Pay ₹{Math.abs(currentCustomer.current_balance).toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    onClick={() => setPaymentType('partial')}
+                                    className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentType === 'partial' ? 'border-indigo-500 bg-indigo-50/50 ring-4 ring-indigo-50' : 'border-gray-100 hover:border-gray-200'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentType === 'partial' ? 'border-indigo-500 bg-indigo-50500' : 'border-gray-200'}`}>
+                                            {paymentType === 'partial' && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-sm" />}
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-gray-800 uppercase text-[10px] tracking-tight">Partial Payment</p>
+                                            <p className="text-[10px] text-gray-500 font-bold">Pay specific amount</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {(isDues || paymentType === 'partial' || (paymentType === 'full' && currentCustomer.current_balance >= 0)) && (
+                            <div className="mb-8 scale-in">
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Amount (₹)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className={`w-full border-2 rounded-2xl p-4 text-xl font-black focus:ring-4 outline-none transition-all ${isDues ? 'border-red-50 focus:ring-red-50' : 'border-indigo-50 focus:ring-indigo-50'}`}
+                                    placeholder="0.00"
+                                    value={paymentAmount}
+                                    onChange={(e) => setPaymentAmount(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowPaymentModal(false)}
+                                className="flex-1 py-4 text-gray-400 font-black rounded-2xl hover:bg-gray-50 transition-colors uppercase tracking-widest text-xs"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRegisterPayment}
+                                className={`flex-1 py-4 text-white font-black rounded-2xl shadow-xl transition-all active:scale-95 uppercase tracking-widest text-xs ${isDues ? 'bg-red-600 shadow-red-100 hover:bg-red-700' : 'bg-green-600 shadow-green-100 hover:bg-green-700'}`}
+                            >
+                                Confirm {isDues ? 'Dues' : (paymentType === 'full' && currentCustomer.current_balance < 0 ? `₹${Math.abs(currentCustomer.current_balance).toFixed(2)}` : 'Payment')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
-        </div>
+        </div >
     );
 };
 

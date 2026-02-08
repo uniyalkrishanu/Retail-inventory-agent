@@ -1,0 +1,6 @@
+# Backend specific ignores
+.env
+__pycache__/
+*.db
+test_grok_connectivity.py
+verify_ai.py

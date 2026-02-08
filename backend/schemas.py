@@ -54,7 +54,13 @@ class SaleCreate(BaseModel):
     customer_name: Optional[str] = None
     customer_id: Optional[int] = None # Added
     payment_status: Optional[str] = "Paid" # Added
+    paid_amount: Optional[float] = 0.0 # Added
     items: List[SaleItemCreate]
+
+class SaleUpdate(BaseModel):
+    customer_name: Optional[str] = None
+    payment_status: Optional[str] = None
+    items: Optional[List[SaleItemCreate]] = None
 
 class SaleItem(BaseModel):
     trophy_id: int
@@ -72,6 +78,7 @@ class Sale(BaseModel):
     customer_name: Optional[str]
     customer_id: Optional[int] = None # Added
     payment_status: Optional[str] = "Paid" # Added
+    paid_amount: float = 0.0 # Added
     total_amount: float
     total_profit: float
     invoice_number: Optional[str] = None
@@ -88,6 +95,7 @@ class VendorBase(BaseModel):
     address: Optional[str] = None
     mobile: Optional[str] = None
     email: Optional[str] = None
+    current_balance: float = 0.0  # <0: We owe vendor, >0: Advance
 
 class VendorCreate(VendorBase):
     pass
@@ -128,6 +136,8 @@ class Purchase(BaseModel):
     invoice_number: Optional[str] = None
     total_amount: float
     items_count: int
+    payment_status: str = "Due"
+    paid_amount: float = 0.0
     items: List[PurchaseItem] = []
 
     class Config:

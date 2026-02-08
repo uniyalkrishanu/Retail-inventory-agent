@@ -48,3 +48,44 @@ def delete_vendor(vendor_id: int, db: Session = Depends(database.get_db)):
     db.delete(db_vendor)
     db.commit()
     return {"message": "Vendor deleted successfully"}
+
+@router.get("/{vendor_id}/purchases")
+def get_vendor_purchases(vendor_id: int, db: Session = Depends(database.get_db)):
+    """Get all purchases from a vendor for ledger history"""
+    purchases = db.query(models.Purchase).filter(
+        models.Purchase.vendor_id == vendor_id,
+        models.Purchase.is_active == True
+    ).order_by(models.Purchase.timestamp.desc()).all()
+    
+    result = []
+    for p in purchases:
+        result.append({
+            "id": p.id,
+            "timestamp": p.timestamp,
+            "total_amount": p.total_amount,
+            "invoice_number": p.invoice_number,
+            "payment_status": p.payment_status
+        })
+    return result
+
+@router.post("/{vendor_id}/payments")
+def register_vendor_payment(vendor_id: int, amount: float, db: Session = Depends(database.get_db)):
+    """
+    Register a payment made to a vendor.
+    This updates their current_balance (subtracts from balance since we're paying them).
+    """
+    db_vendor = db.query(models.Vendor).filter(models.Vendor.id == vendor_id).first()
+    if db_vendor is None:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Payment to vendor increases our balance (reduces what we owe)
+    db_vendor.current_balance += amount
+    
+    db.commit()
+    db.refresh(db_vendor)
+    
+    return {
+        "message": f"Payment of ₹{amount} to vendor registered successfully",
+        "new_balance": db_vendor.current_balance,
+        "vendor_name": db_vendor.name
+    }

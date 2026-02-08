@@ -5,3 +5,5 @@ pydantic
 python-multipart
 pandas
 openpyxl
+httpx
+python-dotenv
