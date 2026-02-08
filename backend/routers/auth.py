@@ -36,13 +36,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    print(f"[Login Attempt] Username: {form_data.username}")
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
-    if not user or not auth_service.verify_password(form_data.password, user.hashed_password):
+    
+    if not user:
+        print(f"[Login Failed] User '{form_data.username}' not found in database.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    if not auth_service.verify_password(form_data.password, user.hashed_password):
+        print(f"[Login Failed] Password mismatch for user '{form_data.username}'.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    print(f"[Login Success] User '{form_data.username}' authenticated.")
     
     access_token = auth_service.create_access_token(data={"sub": user.username})
     return {

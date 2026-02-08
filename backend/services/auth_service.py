@@ -12,6 +12,11 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-for-local-dev-only")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
 
+# Compatibility Patch for passlib + bcrypt 4.0.0+
+import bcrypt
+if not hasattr(bcrypt, "__about__"):
+    bcrypt.__about__ = type('About', (object,), {'__version__': bcrypt.__version__})
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:

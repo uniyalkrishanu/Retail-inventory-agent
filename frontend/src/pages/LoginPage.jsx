@@ -1,5 +1,7 @@
-import { Lock, User, AlertCircle, Loader2 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Lock, User, AlertCircle, Loader2, Package } from 'lucide-react';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -30,8 +32,8 @@ const LoginPage = () => {
             <div className="w-full max-w-md">
                 {/* Logo Area */}
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-28 h-28 bg-white rounded-[32px] shadow-2xl shadow-blue-200/50 mb-6 rotate-3 border-4 border-white overflow-hidden">
-                        <img src={logoImg} alt="Logo" className="w-full h-full object-cover transform scale-110" />
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-[#5D9FD6] rounded-3xl shadow-xl shadow-blue-100 mb-6">
+                        <Package className="w-10 h-10 text-white" />
                     </div>
                     <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase leading-tight">
                         Retail Inventory <br />

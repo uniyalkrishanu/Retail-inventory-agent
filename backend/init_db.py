@@ -20,7 +20,9 @@ def init_users():
             db.commit()
             db.refresh(root_user)
         else:
-            print("Root user already exists.")
+            print("Refreshing root user password...")
+            root_user.hashed_password = auth_service.get_password_hash("root123")
+            db.commit()
 
         # 2. Create or Rename natraj user
         old_natraj_user = db.query(models.User).filter(models.User.username == "Natraj India").first()
@@ -43,7 +45,9 @@ def init_users():
             db.commit()
             db.refresh(natraj_user)
         else:
-            print("natraj user already exists.")
+            print("Refreshing natraj user password...")
+            natraj_user.hashed_password = auth_service.get_password_hash("natraj123")
+            db.commit()
 
         # 3. Migrate existing data to root user
         print("Assigning existing data to root user...")
