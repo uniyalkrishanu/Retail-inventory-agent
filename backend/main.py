@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import models
 from database import engine, SessionLocal
+from init_db import init_users
 from routers import inventory, import_export, sales, vendors, analytics, purchases, customers, insights, auth
 from backup_service import run_daily_backup
 
@@ -25,6 +26,11 @@ async def lifespan(app: FastAPI):
         print(f"[Startup] Backup failed: {e}")
     finally:
         db.close()
+    
+    # Initialize users and seed database
+    print("[Startup] Initializing/Verifying database users...")
+    init_users()
+    
     yield
     # Shutdown: Nothing needed
 

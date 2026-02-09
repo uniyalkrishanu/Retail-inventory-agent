@@ -72,20 +72,17 @@ echo [SUCCESS] Backend dependencies installed.
 pause
 
 echo.
-echo [3/4] Initializing Database...
-if not exist "backend\inventory.db" (
-    echo Creating database and seeding default users...
-    echo Running: python backend\init_db.py
-    python backend\init_db.py
-    if %errorlevel% neq 0 (
-        echo [ERROR] Database initialization failed.
-        pause
-        exit /b 1
-    )
-    echo [SUCCESS] Database initialized.
-) else (
-    echo [INFO] Database already exists. Skipping initialization.
+echo [3/4] Initializing/Verifying Database...
+echo Ensuring database is seeded with default users...
+echo Running: python backend\init_db.py
+python backend\init_db.py
+if %errorlevel% neq 0 (
+    echo [ERROR] Database initialization failed.
+    pause
+    exit /b 1
 )
+echo [SUCCESS] Database ready.
+pause
 pause
 call deactivate
 echo Virtual environment deactivated.

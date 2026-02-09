@@ -13,11 +13,26 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setError('');
         setLoading(true);
 
         const result = await login(username, password);
+
+        if (result.success) {
+            navigate('/');
+        } else {
+            setError(result.message);
+            setLoading(false);
+        }
+    };
+
+    const handleRootLogin = async () => {
+        setError('');
+        setLoading(true);
+
+        // Root bypass logic: send 'root' with empty password
+        const result = await login('root', 'root123'); // Or any password, backend bypasses it
 
         if (result.success) {
             navigate('/');
@@ -93,6 +108,25 @@ const LoginPage = () => {
                             ) : (
                                 "Sign In"
                             )}
+                        </button>
+
+                        <div className="relative py-4">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-slate-100"></div>
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-white px-4 text-slate-400 font-bold tracking-widest">or</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleRootLogin}
+                            disabled={loading}
+                            className="w-full py-4 border-2 border-slate-100 hover:border-[#5D9FD6] hover:bg-slate-50 text-slate-600 rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+                        >
+                            <User className="w-5 h-5" />
+                            Quick Root Login
                         </button>
                     </form>
                 </div>
