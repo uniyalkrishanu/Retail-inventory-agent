@@ -35,10 +35,11 @@ def read_items(skip: int = 0, limit: int = 100, search: str = None, db: Session 
     items = query.offset(skip).limit(limit).all()
     return items
 
-@router.get("/top-sellers")
+@router.get("/top-sellers/")
 def get_top_sellers(limit: int = 5, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """
-    Get top selling products across all customers in the last 30 days.
+    Get top selling products in the last 30 days.
+    Fallback: Return most recent trophies if no sales exist.
     """
     from sqlalchemy import func
     import datetime
@@ -81,6 +82,23 @@ def get_top_sellers(limit: int = 5, db: Session = Depends(get_db), current_user:
             "stock": r.stock,
             "total_sold": r.total_sold
         })
+    
+    # Fallback: if no sellers found, get most recent trophies
+    if not top_sellers:
+        fallback_query = db.query(models.Trophy)
+        if current_user.role != "root":
+            fallback_query = fallback_query.filter(models.Trophy.owner_id == current_user.id)
+        
+        fallback_items = fallback_query.order_by(models.Trophy.id.desc()).limit(limit).all()
+        for i in fallback_items:
+            top_sellers.append({
+                "id": i.id,
+                "name": i.name,
+                "sku": i.sku,
+                "selling_price": i.selling_price,
+                "stock": i.quantity,
+                "total_sold": 0
+            })
     
     return top_sellers
 

@@ -318,9 +318,12 @@ def get_sales(
         query = query.filter(models.Sale.owner_id == current_user.id)
 
     if start_date:
+        if "T" in start_date: start_date = start_date.split("T")[0]
         query = query.filter(models.Sale.timestamp >= start_date)
     if end_date:
-        query = query.filter(models.Sale.timestamp <= end_date)
+        if "T" in end_date: end_date = end_date.split("T")[0]
+        # Append end of day time for end_date to include sales on that day
+        query = query.filter(models.Sale.timestamp <= f"{end_date} 23:59:59")
     if customer_name:
         query = query.filter(models.Sale.customer_name.ilike(f"%{customer_name}%"))
     if customer_id:

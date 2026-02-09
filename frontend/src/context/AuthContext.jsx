@@ -13,9 +13,14 @@ export const AuthProvider = ({ children }) => {
             checkAuth();
         } else {
             // Auto-login as root if no session exists
-            login('root', 'root123');
+            autoLogin();
         }
     }, []);
+
+    const autoLogin = async () => {
+        await login('root', 'root123');
+        setLoading(false);
+    };
 
     const checkAuth = async () => {
         try {

@@ -7,7 +7,6 @@ import VendorManagement from './pages/VendorManagement';
 import PurchasePage from './pages/PurchasePage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import CustomersPage from './pages/CustomersPage';
-import LoginPage from './pages/LoginPage';
 import { Package, LayoutDashboard, ShoppingCart, Truck, FileText, User as UserIcon, LogOut, Loader2 } from 'lucide-react';
 
 const ProtectedRoute = ({ children }) => {

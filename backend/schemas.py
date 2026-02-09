@@ -78,12 +78,12 @@ class Sale(BaseModel):
     customer_name: Optional[str]
     customer_id: Optional[int] = None # Added
     payment_status: Optional[str] = "Paid" # Added
-    paid_amount: float = 0.0 # Added
+    paid_amount: Optional[float] = 0.0 # Changed to Optional
     total_amount: float
     total_profit: float
     invoice_number: Optional[str] = None
     gstin: Optional[str] = None
-    tax_amount: float = 0.0
+    tax_amount: Optional[float] = 0.0 # Changed to Optional
     items: List[SaleItem] = []
 
     class Config:
@@ -137,7 +137,7 @@ class Purchase(BaseModel):
     total_amount: float
     items_count: int
     payment_status: str = "Due"
-    paid_amount: float = 0.0
+    paid_amount: Optional[float] = 0.0 # Changed to Optional
     items: List[PurchaseItem] = []
 
     class Config:

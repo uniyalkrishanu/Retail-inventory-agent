@@ -91,8 +91,8 @@ const SalesHistoryPage = () => {
         setLoading(true);
         try {
             let query = '/sales/?';
-            if (filters.start_date) query += `start_date=${new Date(filters.start_date).toISOString()}&`;
-            if (filters.end_date) query += `end_date=${new Date(filters.end_date).toISOString()}&`;
+            if (filters.start_date) query += `start_date=${filters.start_date}&`;
+            if (filters.end_date) query += `end_date=${filters.end_date}&`;
             if (filters.customer_name) query += `customer_name=${filters.customer_name}&`;
             if (filters.invoice_number) query += `invoice_number=${filters.invoice_number}&`;
 
