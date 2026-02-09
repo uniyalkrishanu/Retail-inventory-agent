@@ -20,8 +20,9 @@ build/
 out/
 
 # Database
-backend/*.db
-backend/*.sqlite3
+# Tracking database as per requirement
+# backend/*.db
+# backend/*.sqlite3
 
 # OS specific
 .DS_Store

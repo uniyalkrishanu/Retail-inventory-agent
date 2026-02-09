@@ -31,30 +31,7 @@ def init_users():
             # root_user.hashed_password = auth_service.get_password_hash("root123")
             # db.commit()
 
-        # 2. Create or Rename natraj user
-        old_natraj_user = db.query(models.User).filter(models.User.username == "Natraj India").first()
-        if old_natraj_user:
-            logger.info("Renaming 'Natraj India' to 'natraj'...")
-            old_natraj_user.username = "natraj"
-            db.commit()
-            natraj_user = old_natraj_user
-        else:
-            natraj_user = db.query(models.User).filter(models.User.username == "natraj").first()
-
-        if not natraj_user:
-            logger.info("Creating natraj user...")
-            natraj_user = models.User(
-                username="natraj",
-                hashed_password=auth_service.get_password_hash("natraj123"), # Default password
-                role="user"
-            )
-            db.add(natraj_user)
-            db.commit()
-            db.refresh(natraj_user)
-        else:
-            logger.info("Verification: natraj user exists.")
-            # natraj_user.hashed_password = auth_service.get_password_hash("natraj123")
-            # db.commit()
+        # 2. (Removed natraj user)
 
         # 3. Migrate existing data to root user
         logger.info("Ensuring existing data ownership...")

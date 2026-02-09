@@ -12,7 +12,8 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             checkAuth();
         } else {
-            setLoading(false);
+            // Auto-login as root if no session exists
+            login('root', 'root123');
         }
     }, []);
 
