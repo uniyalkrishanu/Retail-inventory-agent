@@ -151,9 +151,9 @@ const SalesHistoryPage = () => {
             setShowEditModal(false);
             fetchSales();
             fetchCustomers();
-            alert("Sale updated successfully");
+            console.log("Sale updated successfully");
         } catch (error) {
-            alert("Failed to update sale: " + (error.response?.data?.detail || error.message));
+            console.log("Failed to update sale: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -171,9 +171,9 @@ const SalesHistoryPage = () => {
             setShowPaymentModal(false); // Close payment modal
             setShowEditModal(false);    // Also close edit modal if open
             fetchSales();
-            alert("Payment registered");
+            console.log("Payment registered");
         } catch (error) {
-            alert("Failed to pay: " + (error.response?.data?.detail || error.message));
+            console.log("Failed to pay: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -184,9 +184,9 @@ const SalesHistoryPage = () => {
             await api.delete(`/sales/${id}`);
             fetchSales();
             fetchCustomers();
-            alert("Sale deleted and stock reverted");
+            console.log("Sale deleted and stock reverted");
         } catch (error) {
-            alert("Failed to delete sale: " + (error.response?.data?.detail || error.message));
+            console.log("Failed to delete sale: " + (error.response?.data?.detail || error.message));
         }
     };
 

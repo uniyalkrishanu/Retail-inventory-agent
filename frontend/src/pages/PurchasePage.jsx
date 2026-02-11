@@ -147,7 +147,7 @@ const PurchasePage = () => {
             link.remove();
             setShowChoiceModal(false);
         } catch (error) {
-            alert("Failed to download template: " + (error.response?.data?.detail || error.message));
+            console.log("Failed to download template: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -163,12 +163,12 @@ const PurchasePage = () => {
             await api.post(`/import_export/import?import_type=purchase&payment_status=${status}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            alert(`Purchase Order Imported as ${status} Successfully!`);
+            console.log(`Purchase Order Imported as ${status} Successfully!`);
             setShowUploadModal(false);
             setPendingFile(null);
             fetchPurchases(); // Refresh list
         } catch (error) {
-            alert('Import Failed: ' + (error.response?.data?.detail || error.message));
+            console.log('Import Failed: ' + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -188,12 +188,12 @@ const PurchasePage = () => {
         const amount = paymentOption === 'full' ? remaining : parseFloat(customAmount);
 
         if (isNaN(amount) || amount <= 0) {
-            alert("Please enter a valid payment amount");
+            console.log("Please enter a valid payment amount");
             return;
         }
 
         if (amount > remaining + 0.01) {
-            alert(`Amount ₹${amount} exceeds remaining balance ₹${remaining.toFixed(2)}`);
+            console.log(`Amount ₹${amount} exceeds remaining balance ₹${remaining.toFixed(2)}`);
             return;
         }
 
@@ -203,7 +203,7 @@ const PurchasePage = () => {
             setSelectedPurchasePay(null);
             fetchPurchases();
         } catch (error) {
-            alert("Payment failed: " + (error.response?.data?.detail || error.message));
+            console.log("Payment failed: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -214,7 +214,7 @@ const PurchasePage = () => {
             await api.post(`/purchases/${id}/unpay`);
             fetchPurchases();
         } catch (error) {
-            alert("Operation failed: " + (error.response?.data?.detail || error.message));
+            console.log("Operation failed: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -232,7 +232,7 @@ const PurchasePage = () => {
             setDeleteId(null);
             fetchPurchases();
         } catch (error) {
-            alert("Failed to delete purchase: " + (error.response?.data?.detail || error.message));
+            console.log("Failed to delete purchase: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -248,7 +248,7 @@ const PurchasePage = () => {
             setShowEditModal(false);
             fetchPurchases();
         } catch (error) {
-            alert("Update failed: " + (error.response?.data?.detail || error.message));
+            console.log("Update failed: " + (error.response?.data?.detail || error.message));
         }
     };
 

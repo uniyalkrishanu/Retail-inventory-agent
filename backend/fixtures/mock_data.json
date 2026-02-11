@@ -1,0 +1,1346 @@
+{
+  "trophies": [
+    {
+      "name": "gold medals ",
+      "category": "medal",
+      "material": "gold",
+      "quantity": 1,
+      "cost_price": 2000.0,
+      "selling_price": 5000.0,
+      "sku": "gold med",
+      "min_stock_level": 0
+    },
+    {
+      "name": "silver medal",
+      "category": "medal",
+      "material": "silver",
+      "quantity": 0,
+      "cost_price": 2.0,
+      "selling_price": 3.0,
+      "sku": "silver med",
+      "min_stock_level": 5
+    },
+    {
+      "name": "bronze medal",
+      "category": "medals",
+      "material": "bronze",
+      "quantity": 3,
+      "cost_price": 6.0,
+      "selling_price": 10.0,
+      "sku": "bronze med",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Glass Plaques - 15",
+      "category": "Plaques",
+      "material": "Glass",
+      "quantity": 22,
+      "cost_price": 1650.0,
+      "selling_price": 2475.0,
+      "sku": "SKU-1015",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Cups - 37",
+      "category": "Cups",
+      "material": "Silver",
+      "quantity": 84,
+      "cost_price": 1544.0,
+      "selling_price": 2316.0,
+      "sku": "SKU-1037",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Crystal - 44",
+      "category": "Crystal",
+      "material": "Gold",
+      "quantity": 86,
+      "cost_price": 182.0,
+      "selling_price": 273.0,
+      "sku": "SKU-1044",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Cups - 2",
+      "category": "Cups",
+      "material": "Bronze",
+      "quantity": 80,
+      "cost_price": 806.0,
+      "selling_price": 1209.0,
+      "sku": "SKU-1002",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Plaques - 24",
+      "category": "Plaques",
+      "material": "Bronze",
+      "quantity": 35,
+      "cost_price": 2756.0,
+      "selling_price": 4134.0,
+      "sku": "SKU-1024",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Crystal - 35",
+      "category": "Crystal",
+      "material": "Silver",
+      "quantity": 76,
+      "cost_price": 4687.0,
+      "selling_price": 7030.5,
+      "sku": "SKU-1035",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Medals - 49",
+      "category": "Medals",
+      "material": "Bronze",
+      "quantity": 45,
+      "cost_price": 2695.0,
+      "selling_price": 4042.5,
+      "sku": "SKU-1049",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Cups - 20",
+      "category": "Cups",
+      "material": "Bronze",
+      "quantity": 19,
+      "cost_price": 2747.0,
+      "selling_price": 4120.5,
+      "sku": "SKU-1020",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Cups - 36",
+      "category": "Cups",
+      "material": "Acrylic",
+      "quantity": 69,
+      "cost_price": 3656.0,
+      "selling_price": 5484.0,
+      "sku": "SKU-1036",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Shields - 5",
+      "category": "Shields",
+      "material": "Silver",
+      "quantity": 68,
+      "cost_price": 298.0,
+      "selling_price": 447.0,
+      "sku": "SKU-1005",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Cups - 9",
+      "category": "Cups",
+      "material": "Silver",
+      "quantity": 27,
+      "cost_price": 3905.0,
+      "selling_price": 5857.5,
+      "sku": "SKU-1009",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Shields - 46",
+      "category": "Shields",
+      "material": "Wood",
+      "quantity": 77,
+      "cost_price": 4928.0,
+      "selling_price": 7392.0,
+      "sku": "SKU-1046",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Crystal - 1",
+      "category": "Crystal",
+      "material": "Gold",
+      "quantity": 100,
+      "cost_price": 2257.0,
+      "selling_price": 3385.5,
+      "sku": "SKU-1001",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Crystal - 28",
+      "category": "Crystal",
+      "material": "Bronze",
+      "quantity": 42,
+      "cost_price": 3524.0,
+      "selling_price": 5286.0,
+      "sku": "SKU-1028",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Cups - 31",
+      "category": "Cups",
+      "material": "Bronze",
+      "quantity": 69,
+      "cost_price": 1027.0,
+      "selling_price": 1540.5,
+      "sku": "SKU-1031",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Medals - 34",
+      "category": "Medals",
+      "material": "Silver",
+      "quantity": 25,
+      "cost_price": 307.0,
+      "selling_price": 460.5,
+      "sku": "SKU-1034",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Plaques - 40",
+      "category": "Plaques",
+      "material": "Acrylic",
+      "quantity": 54,
+      "cost_price": 4383.0,
+      "selling_price": 6574.5,
+      "sku": "SKU-1040",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Cups - 50",
+      "category": "Cups",
+      "material": "Wood",
+      "quantity": 45,
+      "cost_price": 3060.0,
+      "selling_price": 4590.0,
+      "sku": "SKU-1050",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Plaques - 32",
+      "category": "Plaques",
+      "material": "Silver",
+      "quantity": 97,
+      "cost_price": 4959.0,
+      "selling_price": 7438.5,
+      "sku": "SKU-1032",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Plaques - 33",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 28,
+      "cost_price": 4505.0,
+      "selling_price": 6757.5,
+      "sku": "SKU-1033",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Medals - 42",
+      "category": "Medals",
+      "material": "Acrylic",
+      "quantity": 22,
+      "cost_price": 2415.0,
+      "selling_price": 3622.5,
+      "sku": "SKU-1042",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Cups - 7",
+      "category": "Cups",
+      "material": "Wood",
+      "quantity": 62,
+      "cost_price": 2112.0,
+      "selling_price": 3168.0,
+      "sku": "SKU-1007",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Plaques - 3",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 91,
+      "cost_price": 2066.0,
+      "selling_price": 3099.0,
+      "sku": "SKU-1003",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Shields - 4",
+      "category": "Shields",
+      "material": "Wood",
+      "quantity": 52,
+      "cost_price": 787.0,
+      "selling_price": 1180.5,
+      "sku": "SKU-1004",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Plaques - 16",
+      "category": "Plaques",
+      "material": "Silver",
+      "quantity": 16,
+      "cost_price": 3893.0,
+      "selling_price": 5839.5,
+      "sku": "SKU-1016",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Plaques - 21",
+      "category": "Plaques",
+      "material": "Gold",
+      "quantity": 84,
+      "cost_price": 2546.0,
+      "selling_price": 3819.0,
+      "sku": "SKU-1021",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Shields - 25",
+      "category": "Shields",
+      "material": "Gold",
+      "quantity": 56,
+      "cost_price": 3826.0,
+      "selling_price": 5739.0,
+      "sku": "SKU-1025",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Shields - 45",
+      "category": "Shields",
+      "material": "Wood",
+      "quantity": 51,
+      "cost_price": 2121.0,
+      "selling_price": 3181.5,
+      "sku": "SKU-1045",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Shields - 10",
+      "category": "Shields",
+      "material": "Acrylic",
+      "quantity": 58,
+      "cost_price": 4118.0,
+      "selling_price": 6177.0,
+      "sku": "SKU-1010",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Glass Shields - 18",
+      "category": "Shields",
+      "material": "Glass",
+      "quantity": 10,
+      "cost_price": 1048.0,
+      "selling_price": 1572.0,
+      "sku": "SKU-1018",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Medals - 23",
+      "category": "Medals",
+      "material": "Silver",
+      "quantity": 23,
+      "cost_price": 1728.0,
+      "selling_price": 2592.0,
+      "sku": "SKU-1023",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Cups - 39",
+      "category": "Cups",
+      "material": "Bronze",
+      "quantity": 48,
+      "cost_price": 361.0,
+      "selling_price": 541.5,
+      "sku": "SKU-1039",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Medals - 43",
+      "category": "Medals",
+      "material": "Acrylic",
+      "quantity": 99,
+      "cost_price": 4631.0,
+      "selling_price": 6946.5,
+      "sku": "SKU-1043",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Glass Shields - 47",
+      "category": "Shields",
+      "material": "Glass",
+      "quantity": 76,
+      "cost_price": 1073.0,
+      "selling_price": 1609.5,
+      "sku": "SKU-1047",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Medals - 6",
+      "category": "Medals",
+      "material": "Acrylic",
+      "quantity": 23,
+      "cost_price": 4906.0,
+      "selling_price": 7359.0,
+      "sku": "SKU-1006",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Plaques - 12",
+      "category": "Plaques",
+      "material": "Gold",
+      "quantity": 33,
+      "cost_price": 3613.0,
+      "selling_price": 5419.5,
+      "sku": "SKU-1012",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Crystal - 13",
+      "category": "Crystal",
+      "material": "Bronze",
+      "quantity": 16,
+      "cost_price": 552.0,
+      "selling_price": 828.0,
+      "sku": "SKU-1013",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Crystal - 27",
+      "category": "Crystal",
+      "material": "Wood",
+      "quantity": 44,
+      "cost_price": 338.0,
+      "selling_price": 507.0,
+      "sku": "SKU-1027",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Medals - 30",
+      "category": "Medals",
+      "material": "Bronze",
+      "quantity": 84,
+      "cost_price": 571.0,
+      "selling_price": 856.5,
+      "sku": "SKU-1030",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Plaques - 11",
+      "category": "Plaques",
+      "material": "Gold",
+      "quantity": 41,
+      "cost_price": 4707.0,
+      "selling_price": 7060.5,
+      "sku": "SKU-1011",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Wood Cups - 48",
+      "category": "Cups",
+      "material": "Wood",
+      "quantity": 68,
+      "cost_price": 2273.0,
+      "selling_price": 3409.5,
+      "sku": "SKU-1048",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Cups - 8",
+      "category": "Cups",
+      "material": "Acrylic",
+      "quantity": 74,
+      "cost_price": 4458.0,
+      "selling_price": 6687.0,
+      "sku": "SKU-1008",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Medals - 14",
+      "category": "Medals",
+      "material": "Acrylic",
+      "quantity": 60,
+      "cost_price": 3261.0,
+      "selling_price": 4891.5,
+      "sku": "SKU-1014",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Glass Plaques - 22",
+      "category": "Plaques",
+      "material": "Glass",
+      "quantity": 48,
+      "cost_price": 4771.0,
+      "selling_price": 7156.5,
+      "sku": "SKU-1022",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Plaques - 41",
+      "category": "Plaques",
+      "material": "Gold",
+      "quantity": 19,
+      "cost_price": 599.0,
+      "selling_price": 898.5,
+      "sku": "SKU-1041",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Silver Cups - 17",
+      "category": "Cups",
+      "material": "Silver",
+      "quantity": 80,
+      "cost_price": 995.0,
+      "selling_price": 1492.5,
+      "sku": "SKU-1017",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Crystal - 19",
+      "category": "Crystal",
+      "material": "Acrylic",
+      "quantity": 89,
+      "cost_price": 1966.0,
+      "selling_price": 2949.0,
+      "sku": "SKU-1019",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Acrylic Medals - 26",
+      "category": "Medals",
+      "material": "Acrylic",
+      "quantity": 52,
+      "cost_price": 4873.0,
+      "selling_price": 7309.5,
+      "sku": "SKU-1026",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Gold Crystal - 29",
+      "category": "Crystal",
+      "material": "Gold",
+      "quantity": 31,
+      "cost_price": 660.0,
+      "selling_price": 990.0,
+      "sku": "SKU-1029",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Bronze Plaques - 38",
+      "category": "Plaques",
+      "material": "Bronze",
+      "quantity": 50,
+      "cost_price": 1062.0,
+      "selling_price": 1593.0,
+      "sku": "SKU-1038",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 1",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 68,
+      "cost_price": 688.0,
+      "selling_price": 1100.8,
+      "sku": "APEX-101",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 2",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 28,
+      "cost_price": 680.0,
+      "selling_price": 1088.0,
+      "sku": "APEX-102",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 3",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 48,
+      "cost_price": 219.0,
+      "selling_price": 350.4,
+      "sku": "APEX-103",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 4",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 32,
+      "cost_price": 906.0,
+      "selling_price": 1449.6,
+      "sku": "APEX-104",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 5",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 36,
+      "cost_price": 592.0,
+      "selling_price": 947.2,
+      "sku": "APEX-105",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 6",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 72,
+      "cost_price": 659.0,
+      "selling_price": 1054.4,
+      "sku": "APEX-106",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 7",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 36,
+      "cost_price": 419.0,
+      "selling_price": 670.4000000000001,
+      "sku": "APEX-107",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 8",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 24,
+      "cost_price": 582.0,
+      "selling_price": 931.2,
+      "sku": "APEX-108",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 9",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 60,
+      "cost_price": 778.0,
+      "selling_price": 1244.8,
+      "sku": "APEX-109",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Apex Cup 10",
+      "category": "Cups",
+      "material": "Metal",
+      "quantity": 76,
+      "cost_price": 314.0,
+      "selling_price": 502.4,
+      "sku": "APEX-110",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 1",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 35,
+      "cost_price": 1016.0,
+      "selling_price": 1828.8,
+      "sku": "ELITE-201",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 2",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 22,
+      "cost_price": 1923.0,
+      "selling_price": 3461.4,
+      "sku": "ELITE-202",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 3",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 44,
+      "cost_price": 1058.0,
+      "selling_price": 1904.4,
+      "sku": "ELITE-203",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 4",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 36,
+      "cost_price": 1044.0,
+      "selling_price": 1879.2,
+      "sku": "ELITE-204",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 5",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 24,
+      "cost_price": 1420.0,
+      "selling_price": 2556.0,
+      "sku": "ELITE-205",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 6",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 32,
+      "cost_price": 918.0,
+      "selling_price": 1652.4,
+      "sku": "ELITE-206",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 7",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 22,
+      "cost_price": 519.0,
+      "selling_price": 934.2,
+      "sku": "ELITE-207",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 8",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 22,
+      "cost_price": 1761.0,
+      "selling_price": 3169.8,
+      "sku": "ELITE-208",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 9",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 50,
+      "cost_price": 954.0,
+      "selling_price": 1717.2,
+      "sku": "ELITE-209",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Elite Plaque 10",
+      "category": "Plaques",
+      "material": "Wood",
+      "quantity": 40,
+      "cost_price": 1054.0,
+      "selling_price": 1897.2,
+      "sku": "ELITE-210",
+      "min_stock_level": 5
+    },
+    {
+      "name": "Soft Delete Item",
+      "category": "Test",
+      "material": "Plastic",
+      "quantity": 10,
+      "cost_price": 100.0,
+      "selling_price": 150.0,
+      "sku": "SD_ITEM_001",
+      "min_stock_level": 5
+    },
+    {
+      "name": "New Item ITEM-X",
+      "category": "Uncategorized",
+      "material": "Unknown",
+      "quantity": 20,
+      "cost_price": 100.0,
+      "selling_price": 0.0,
+      "sku": "ITEM-X",
+      "min_stock_level": 5
+    }
+  ],
+  "customers": [
+    {
+      "name": "client3",
+      "mobile": null,
+      "email": null,
+      "address": null,
+      "current_balance": -1432.0
+    },
+    {
+      "name": "client4",
+      "mobile": null,
+      "email": null,
+      "address": null,
+      "current_balance": -11928.0
+    },
+    {
+      "name": "client5",
+      "mobile": null,
+      "email": null,
+      "address": null,
+      "current_balance": 0.0
+    },
+    {
+      "name": "Walk-in Customer",
+      "mobile": null,
+      "email": null,
+      "address": null,
+      "current_balance": 0.0
+    }
+  ],
+  "vendors": [
+    {
+      "name": "Trophy Supplier A",
+      "address": "392 Industrial Area, City A",
+      "mobile": "9876543001.0",
+      "email": "contact@suppliera.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier B",
+      "address": "445 Industrial Area, City B",
+      "mobile": "9876543002.0",
+      "email": "contact@supplierb.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier C",
+      "address": "760 Industrial Area, City C",
+      "mobile": "9876543003.0",
+      "email": "contact@supplierc.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier D",
+      "address": "187 Industrial Area, City D",
+      "mobile": "9876543004.0",
+      "email": "contact@supplierd.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier E",
+      "address": "265 Industrial Area, City E",
+      "mobile": "9876543005.0",
+      "email": "contact@suppliere.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier F",
+      "address": "895 Industrial Area, City F",
+      "mobile": "9876543006.0",
+      "email": "contact@supplierf.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier G",
+      "address": "189 Industrial Area, City G",
+      "mobile": "9876543007.0",
+      "email": "contact@supplierg.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier H",
+      "address": "472 Industrial Area, City H",
+      "mobile": "9876543008.0",
+      "email": "contact@supplierh.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier I",
+      "address": "319 Industrial Area, City I",
+      "mobile": "9876543009.0",
+      "email": "contact@supplieri.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier J",
+      "address": "718 Industrial Area, City J",
+      "mobile": "9876543010.0",
+      "email": "contact@supplierj.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier K",
+      "address": "898 Industrial Area, City K",
+      "mobile": "9876543011.0",
+      "email": "contact@supplierk.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier M",
+      "address": "579 Industrial Area, City M",
+      "mobile": "9876543013.0",
+      "email": "contact@supplierm.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier N",
+      "address": "157 Industrial Area, City N",
+      "mobile": "9876543014.0",
+      "email": "contact@suppliern.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Trophy Supplier O",
+      "address": "458 Industrial Area, City O",
+      "mobile": "9876543015.0",
+      "email": "contact@suppliero.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Apex Trophies",
+      "address": "123 Winner Lane",
+      "mobile": "9998887771.0",
+      "email": "apex@trophy.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Elite Awards",
+      "address": "456 Champion St",
+      "mobile": "9998887772.0",
+      "email": "elite@awards.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "TestVendor_SD",
+      "address": "123 Test St",
+      "mobile": "1234567890.0",
+      "email": "test@test.com",
+      "current_balance": 0.0
+    },
+    {
+      "name": "Test Vendor A",
+      "address": "123 St",
+      "mobile": null,
+      "email": null,
+      "current_balance": 0.0
+    }
+  ],
+  "sales": [
+    {
+      "timestamp": "2026-02-07T10:38:30.177000",
+      "customer_name": null,
+      "total_amount": 3.0,
+      "total_profit": 1.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 3.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T10:40:04.154000",
+      "customer_name": null,
+      "total_amount": 10.0,
+      "total_profit": 4.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 10.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T12:02:29.483000",
+      "customer_name": null,
+      "total_amount": 94935.9,
+      "total_profit": 32254.89999999999,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 94935.9,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T12:41:44.370000",
+      "customer_name": null,
+      "total_amount": 24279.0,
+      "total_profit": 8093.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 24279.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T13:20:10.787000",
+      "customer_name": "client1",
+      "total_amount": 37843.5,
+      "total_profit": 12614.5,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Due",
+      "paid_amount": 37843.5,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T13:28:23.260000",
+      "customer_name": "client2",
+      "total_amount": 9356.5,
+      "total_profit": 3119.5,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 9356.5,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T14:08:23.255000",
+      "customer_name": "client3",
+      "total_amount": 5343.0,
+      "total_profit": 1781.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 5343.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T14:08:40.447000",
+      "customer_name": "client3",
+      "total_amount": 273.0,
+      "total_profit": 91.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Due",
+      "paid_amount": 273.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T19:04:25.648000",
+      "customer_name": "client4",
+      "total_amount": 11928.0,
+      "total_profit": 3976.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Due",
+      "paid_amount": 11928.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T19:17:02.284000",
+      "customer_name": "client5",
+      "total_amount": 27684.0,
+      "total_profit": 9228.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 27684.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T19:46:16.190000",
+      "customer_name": "client4",
+      "total_amount": 3627.0,
+      "total_profit": 1209.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 3627.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-08T08:14:22.984000",
+      "customer_name": "client3",
+      "total_amount": 1209.0,
+      "total_profit": 403.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Due",
+      "paid_amount": 1209.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-08T08:16:53.644000",
+      "customer_name": "Walk-in Customer",
+      "total_amount": 2475.0,
+      "total_profit": 825.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": null,
+      "payment_status": "Paid",
+      "paid_amount": 2475.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-09T18:17:54.323469",
+      "customer_name": "client3",
+      "total_amount": 2475.0,
+      "total_profit": 825.0,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": 0.0,
+      "payment_status": "Paid",
+      "paid_amount": 2475.0,
+      "items": [
+        {
+          "trophy_sku": "SKU-1015",
+          "quantity": 1,
+          "unit_price_at_sale": 2475.0,
+          "unit_cost_at_sale": 1650.0
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-02-09T18:20:37.570447",
+      "customer_name": "client3",
+      "total_amount": 5383.5,
+      "total_profit": 1794.5,
+      "invoice_number": null,
+      "gstin": null,
+      "tax_amount": 0.0,
+      "payment_status": "Paid",
+      "paid_amount": 5383.5,
+      "items": [
+        {
+          "trophy_sku": "SKU-1049",
+          "quantity": 1,
+          "unit_price_at_sale": 4042.5,
+          "unit_cost_at_sale": 2695.0
+        },
+        {
+          "trophy_sku": "SKU-1005",
+          "quantity": 3,
+          "unit_price_at_sale": 447.0,
+          "unit_cost_at_sale": 298.0
+        }
+      ]
+    }
+  ],
+  "purchases": [
+    {
+      "timestamp": "2026-02-07T11:14:07.390000",
+      "vendor_name": "Trophy Supplier A",
+      "total_amount": 208428.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.399000",
+      "vendor_name": "Trophy Supplier B",
+      "total_amount": 682478.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.404000",
+      "vendor_name": "Trophy Supplier C",
+      "total_amount": 304457.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.406000",
+      "vendor_name": "Trophy Supplier D",
+      "total_amount": 506049.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.411000",
+      "vendor_name": "Trophy Supplier E",
+      "total_amount": 689542.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.416000",
+      "vendor_name": "Trophy Supplier F",
+      "total_amount": 137700.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.418000",
+      "vendor_name": "Trophy Supplier G",
+      "total_amount": 660293.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.422000",
+      "vendor_name": "Trophy Supplier H",
+      "total_amount": 130944.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.424000",
+      "vendor_name": "Trophy Supplier I",
+      "total_amount": 843081.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.431000",
+      "vendor_name": "Trophy Supplier J",
+      "total_amount": 846413.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.437000",
+      "vendor_name": "Trophy Supplier K",
+      "total_amount": 363368.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.443000",
+      "vendor_name": "Trophy Supplier M",
+      "total_amount": 347551.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.446000",
+      "vendor_name": "Trophy Supplier N",
+      "total_amount": 765941.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:14:07.451000",
+      "vendor_name": "Trophy Supplier O",
+      "total_amount": 581530.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:26:39.214000",
+      "vendor_name": "Apex Trophies",
+      "total_amount": 68421.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:26:55.628000",
+      "vendor_name": "Elite Awards",
+      "total_amount": 184263.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:32:50.670000",
+      "vendor_name": "Elite Awards",
+      "total_amount": 184263.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:39:39.544000",
+      "vendor_name": "Apex Trophies",
+      "total_amount": 68421.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T11:40:52.706000",
+      "vendor_name": "Apex Trophies",
+      "total_amount": 68421.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T12:07:06.437000",
+      "vendor_name": "TestVendor_SD",
+      "total_amount": 1000.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T12:57:41.979000",
+      "vendor_name": "Test Vendor A",
+      "total_amount": 1000.0,
+      "is_active": true,
+      "invoice_number": "INV-TEST-001",
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T13:00:49.866000",
+      "vendor_name": "Test Vendor A",
+      "total_amount": 1000.0,
+      "is_active": true,
+      "invoice_number": "INV-TEST-1770469249",
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    },
+    {
+      "timestamp": "2026-02-07T18:44:44.588000",
+      "vendor_name": "Apex Trophies",
+      "total_amount": 68421.0,
+      "is_active": true,
+      "invoice_number": null,
+      "payment_status": "Due",
+      "paid_amount": 0.0,
+      "items": []
+    }
+  ]
+}

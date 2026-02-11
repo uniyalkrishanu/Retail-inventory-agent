@@ -8,6 +8,7 @@ import PurchasePage from './pages/PurchasePage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import CustomersPage from './pages/CustomersPage';
 import { Package, LayoutDashboard, ShoppingCart, Truck, FileText, User as UserIcon, LogOut, Loader2 } from 'lucide-react';
+import LoginPage from './pages/LoginPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -21,14 +22,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#F8F9FB]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-[#5D9FD6] animate-spin" />
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Authenticating...</p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/login" replace />;
   }
 
   return children;
@@ -81,8 +75,14 @@ function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-white/10">
-        {/* Logout removed as per requirement */}
+      <div className="p-4 border-t border-white/10">
+        <button
+          onClick={logout}
+          className="flex items-center w-full px-6 py-4 rounded-2xl transition-all duration-200 group hover:bg-white/10 text-white/80 hover:text-white"
+        >
+          <span className="mr-4 group-hover:scale-110 transition-transform"><LogOut className="w-5 h-5" /></span>
+          <span className="text-sm font-medium uppercase tracking-widest">Logout</span>
+        </button>
       </div>
 
       <div className="p-8 border-t border-white/10">
@@ -97,21 +97,29 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="flex h-screen bg-[#F8F9FB]">
-          <Sidebar />
-
-          {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-8">
-            <Routes>
-              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/purchases" element={<ProtectedRoute><PurchasePage /></ProtectedRoute>} />
-              <Route path="/inventory" element={<ProtectedRoute><InventoryList /></ProtectedRoute>} />
-              <Route path="/vendors" element={<ProtectedRoute><VendorManagement /></ProtectedRoute>} />
-              <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
-              <Route path="/sales-history" element={<ProtectedRoute><SalesHistoryPage /></ProtectedRoute>} />
-              <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </main>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="*"
+              element={
+                <>
+                  <Sidebar />
+                  <main className="flex-1 overflow-y-auto p-8">
+                    <Routes>
+                      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                      <Route path="/purchases" element={<ProtectedRoute><PurchasePage /></ProtectedRoute>} />
+                      <Route path="/inventory" element={<ProtectedRoute><InventoryList /></ProtectedRoute>} />
+                      <Route path="/vendors" element={<ProtectedRoute><VendorManagement /></ProtectedRoute>} />
+                      <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
+                      <Route path="/sales-history" element={<ProtectedRoute><SalesHistoryPage /></ProtectedRoute>} />
+                      <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+                      <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                  </main>
+                </>
+              }
+            />
+          </Routes>
         </div>
       </Router>
     </AuthProvider>

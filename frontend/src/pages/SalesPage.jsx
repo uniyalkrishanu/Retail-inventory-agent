@@ -68,7 +68,7 @@ const SalesPage = () => {
         const currentQty = existingItem ? existingItem.cartQuantity : 0;
 
         if (currentQty + quantity > item.quantity) {
-            alert(`Not enough stock! Available: ${item.quantity}`);
+            console.log(`Not enough stock! Available: ${item.quantity}`);
             return;
         }
 
@@ -88,7 +88,7 @@ const SalesPage = () => {
         if (newQty < 1) return;
         const item = inventory.find(i => i.id === id);
         if (newQty > item.quantity) {
-            alert(`Not enough stock! Available: ${item.quantity}`);
+            console.log(`Not enough stock! Available: ${item.quantity}`);
             return;
         }
         setCart(cart.map(i => i.id === id ? { ...i, cartQuantity: newQty } : i));
@@ -157,7 +157,7 @@ const SalesPage = () => {
 
         } catch (error) {
             console.error("Sale failed", error);
-            alert("Sale failed: " + (error.response?.data?.detail || error.message));
+            console.log("Sale failed: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -200,13 +200,13 @@ const SalesPage = () => {
     const addRecommendationToCart = (product) => {
         const item = inventory.find(i => i.id === product.id);
         if (!item || item.quantity < 1) {
-            alert("Item out of stock!");
+            console.log("Item out of stock!");
             return;
         }
         const existingItem = cart.find(i => i.id === item.id);
         if (existingItem) {
             if (existingItem.cartQuantity + 1 > item.quantity) {
-                alert(`Not enough stock! Available: ${item.quantity}`);
+                console.log(`Not enough stock! Available: ${item.quantity}`);
                 return;
             }
             setCart(cart.map(i => i.id === item.id ? { ...i, cartQuantity: i.cartQuantity + 1 } : i));

@@ -49,7 +49,7 @@ const VendorManagement = () => {
             setFormData({ name: '', address: '', mobile: '', email: '' });
             fetchVendors();
         } catch (error) {
-            alert("Failed to save vendor: " + (error.response?.data?.detail || error.message));
+            console.error("Failed to save vendor:", error);
         }
     };
 
@@ -70,7 +70,7 @@ const VendorManagement = () => {
             await api.delete(`/vendors/${id}`);
             fetchVendors();
         } catch (error) {
-            alert("Failed to delete vendor");
+            console.error("Failed to delete vendor:", error);
         }
     };
 
@@ -139,19 +139,19 @@ const VendorManagement = () => {
         }
 
         if (!amountToPay || Math.abs(amountToPay) <= 0) {
-            alert('Please enter a valid amount');
+            console.warn('Invalid payment amount');
             return;
         }
 
         try {
             const res = await api.post(`/vendors/${selectedVendor.id}/payments?amount=${amountToPay}`);
-            alert(res.data.message);
+            console.log('Payment registered:', res.data.message);
             setShowPaymentModal(false);
             setPaymentType('full');
             setPaymentAmount('');
             fetchVendors();
         } catch (error) {
-            alert('Failed to register transaction');
+            console.error('Failed to register transaction:', error);
         }
     };
 

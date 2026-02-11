@@ -105,7 +105,7 @@ const InventoryList = () => {
             setShowModal(false);
             fetchInventory();
         } catch (error) {
-            alert("Failed to save item");
+            console.log("Failed to save item");
         }
     };
 

@@ -121,20 +121,20 @@ const CustomersPage = () => {
         }
 
         if (!amountToPay || Math.abs(amountToPay) <= 0) {
-            alert('Please enter a valid amount');
+            console.log('Please enter a valid amount');
             return;
         }
 
         try {
             const res = await api.post(`/customers/${currentCustomer.id}/payments?amount=${amountToPay}`);
-            alert(res.data.message);
+            console.log(res.data.message);
             setShowPaymentModal(false);
             setPaymentType('full');
             setPaymentAmount('');
             fetchCustomers();
         } catch (error) {
             console.error('Error registering payment:', error);
-            alert('Error registering payment');
+            console.log('Error registering payment');
         }
     };
 

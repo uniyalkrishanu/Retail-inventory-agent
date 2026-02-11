@@ -47,9 +47,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    is_root_bypass = form_data.username == "root"
-    
-    if not is_root_bypass and not auth_service.verify_password(form_data.password, user.hashed_password):
+    if not auth_service.verify_password(form_data.password, user.hashed_password):
         print(f"[Login Failed] Password mismatch for user '{form_data.username}'.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -57,10 +55,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if is_root_bypass:
-        print(f"[Login Success] Root user bypassed password check.")
-    else:
-        print(f"[Login Success] User '{form_data.username}' authenticated.")
+    print(f"[Login Success] User '{form_data.username}' authenticated.")
     
     access_token = auth_service.create_access_token(data={"sub": user.username})
     return {
