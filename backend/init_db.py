@@ -131,13 +131,12 @@ def init_users():
                     for item_data in sale_data.get("items", []):
                         if item_data["trophy_sku"] in sku_to_trophy:
                             sale_item = models.SaleItem(
-                                sale_id=sale.id,
                                 trophy_id=sku_to_trophy[item_data["trophy_sku"]],
                                 quantity=item_data["quantity"],
                                 unit_price_at_sale=item_data["unit_price_at_sale"],
                                 unit_cost_at_sale=item_data["unit_cost_at_sale"]
                             )
-                            db.add(sale_item)
+                            sale.items.append(sale_item)
                 
                 # Import Purchases
                 for purchase_data in fixture.get("purchases", []):
@@ -158,12 +157,11 @@ def init_users():
                         for item_data in purchase_data.get("items", []):
                             if item_data["trophy_sku"] in sku_to_trophy:
                                 purchase_item = models.PurchaseItem(
-                                    purchase_id=purchase.id,
                                     trophy_id=sku_to_trophy[item_data["trophy_sku"]],
                                     quantity=item_data["quantity"],
                                     unit_cost=item_data["unit_cost"]
                                 )
-                                db.add(purchase_item)
+                                purchase.items.append(purchase_item)
                 
                 db.commit()
                 logger.info(f"✓ Guest user seeded with {len(fixture.get('trophies', []))} trophies, {len(fixture.get('sales', []))} sales, {len(fixture.get('purchases', []))} purchases")

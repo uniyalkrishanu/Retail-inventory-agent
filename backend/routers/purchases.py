@@ -33,6 +33,7 @@ class PurchaseSchema(BaseModel):
     total_amount: float
     items_count: int
     payment_status: str
+    paid_amount: float
     items: List[PurchaseItemSchema]
 
     class Config:
@@ -75,6 +76,7 @@ def read_purchases(
             "total_amount": p.total_amount,
             "items_count": len(p.items),
             "payment_status": p.payment_status or "Due",
+            "paid_amount": p.paid_amount or 0.0,
             "items": items_data
         })
     return result

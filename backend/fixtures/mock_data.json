@@ -1340,7 +1340,18 @@
       "invoice_number": null,
       "payment_status": "Due",
       "paid_amount": 0.0,
-      "items": []
+      "items": [
+        {
+          "trophy_sku": "APEX-101",
+          "quantity": 50,
+          "unit_cost": 688.0
+        },
+        {
+          "trophy_sku": "APEX-102",
+          "quantity": 50,
+          "unit_cost": 680.0
+        }
+      ]
     }
   ]
 }

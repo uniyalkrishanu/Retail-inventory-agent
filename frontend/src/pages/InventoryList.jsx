@@ -67,7 +67,10 @@ const InventoryList = () => {
     const displayedItems = useMemo(() => {
         let result = sortedItems;
         if (showLowStockOnly) {
-            result = result.filter(item => item.quantity <= (item.min_stock_level || 5));
+            result = result.filter(item => {
+                const alertLevel = item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5;
+                return alertLevel > 0 && item.quantity <= alertLevel;
+            });
         }
         return result;
     }, [sortedItems, showLowStockOnly]);
@@ -187,12 +190,12 @@ const InventoryList = () => {
                                 <td className="px-8 py-6">
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-2 h-2 rounded-full ${item.quantity <= (item.min_stock_level || 5) ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
-                                            <span className={`text-sm font-black ${item.quantity <= (item.min_stock_level || 5) ? 'text-red-600' : 'text-gray-800'}`}>
+                                            <div className={`w-2 h-2 rounded-full ${(item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) > 0 && item.quantity <= (item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                                            <span className={`text-sm font-black ${(item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) > 0 && item.quantity <= (item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) ? 'text-red-600' : 'text-gray-800'}`}>
                                                 {item.quantity} Units
                                             </span>
                                         </div>
-                                        {item.quantity <= (item.min_stock_level || 5) && (
+                                        {(item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) > 0 && item.quantity <= (item.min_stock_level !== undefined && item.min_stock_level !== null ? item.min_stock_level : 5) && (
                                             <span className="text-[10px] font-bold text-red-400 mt-1 uppercase underline underline-offset-2">Low Stock</span>
                                         )}
                                     </div>

@@ -384,9 +384,12 @@ const PurchasePage = () => {
                                         <td className="px-8 py-6 text-xs font-black text-gray-400">{purchase.items_count} Units</td>
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-[#66BB6A] text-sm">₹{purchase.total_amount.toLocaleString()}</span>
+                                                <span className="font-black text-gray-700 text-sm">₹{purchase.total_amount.toLocaleString()}</span>
                                                 {purchase.paid_amount > 0 && purchase.payment_status !== 'Paid' && (
-                                                    <span className="text-[9px] font-black text-gray-300 uppercase mt-0.5">Paid: ₹{purchase.paid_amount.toLocaleString()}</span>
+                                                    <span className="text-[9px] font-black text-green-600 uppercase mt-0.5">Paid: ₹{purchase.paid_amount.toLocaleString()}</span>
+                                                )}
+                                                {purchase.payment_status !== 'Paid' && (
+                                                    <span className="text-[9px] font-black text-red-600 uppercase mt-0.5">Due: ₹{(purchase.total_amount - (purchase.paid_amount || 0)).toLocaleString()}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -431,26 +434,34 @@ const PurchasePage = () => {
                                         <tr>
                                             <td colSpan="9" className="px-8 py-8 bg-gray-50/30">
                                                 <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden mx-12">
-                                                    <table className="w-full">
-                                                        <thead className="bg-gray-50/50">
-                                                            <tr>
-                                                                <th className="px-6 py-4 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest">Description</th>
-                                                                <th className="px-6 py-4 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Qty</th>
-                                                                <th className="px-6 py-4 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Unit Cost</th>
-                                                                <th className="px-6 py-4 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Total</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-gray-50">
-                                                            {purchase.items && purchase.items.map((item) => (
-                                                                <tr key={item.id} className="hover:bg-gray-50/50">
-                                                                    <td className="px-6 py-4 text-sm font-bold text-gray-600">{item.trophy_name}</td>
-                                                                    <td className="px-6 py-4 text-center text-xs font-black text-gray-500">{item.quantity}</td>
-                                                                    <td className="px-6 py-4 text-right text-xs font-bold text-gray-500">₹{item.unit_cost.toLocaleString()}</td>
-                                                                    <td className="px-6 py-4 text-right text-sm font-black text-gray-800">₹{(item.quantity * item.unit_cost).toLocaleString()}</td>
+                                                    {purchase.items && purchase.items.length > 0 ? (
+                                                        <table className="w-full">
+                                                            <thead className="bg-gray-50/50">
+                                                                <tr>
+                                                                    <th className="px-6 py-4 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest">Description</th>
+                                                                    <th className="px-6 py-4 text-center text-[9px] font-black text-gray-400 uppercase tracking-widest">Qty</th>
+                                                                    <th className="px-6 py-4 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Unit Cost</th>
+                                                                    <th className="px-6 py-4 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest">Total</th>
                                                                 </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-50">
+                                                                {purchase.items.map((item) => (
+                                                                    <tr key={item.id} className="hover:bg-gray-50/50">
+                                                                        <td className="px-6 py-4 text-sm font-bold text-gray-600">{item.trophy_name}</td>
+                                                                        <td className="px-6 py-4 text-center text-xs font-black text-gray-500">{item.quantity}</td>
+                                                                        <td className="px-6 py-4 text-right text-xs font-bold text-gray-500">₹{item.unit_cost.toLocaleString()}</td>
+                                                                        <td className="px-6 py-4 text-right text-sm font-black text-gray-800">₹{(item.quantity * item.unit_cost).toLocaleString()}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    ) : (
+                                                        <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-gray-50/30">
+                                                            <PackageIcon className="w-8 h-8 mb-3 opacity-20" />
+                                                            <p className="text-[11px] font-bold uppercase tracking-widest">No items recorded for this order</p>
+                                                            <p className="text-[9px] mt-1 opacity-60">This might be a legacy entry or seeded demo data.</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -459,40 +470,42 @@ const PurchasePage = () => {
                             ))
                         )}
                     </tbody>
-                </table>
-            </div>
+                </table >
+            </div >
 
             {/* Edit Modal */}
-            {showEditModal && editData && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white p-6 rounded-lg max-w-sm w-full">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold">Edit Purchase #{editData.id}</h3>
-                            <button onClick={() => setShowEditModal(false)}><X className="w-6 h-6" /></button>
-                        </div>
+            {
+                showEditModal && editData && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white p-6 rounded-lg max-w-sm w-full">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold">Edit Purchase #{editData.id}</h3>
+                                <button onClick={() => setShowEditModal(false)}><X className="w-6 h-6" /></button>
+                            </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-bold mb-2">Vendor</label>
-                            <select
-                                value={editData.vendor_id || ''}
-                                onChange={(e) => setEditData({ ...editData, vendor_id: e.target.value })}
-                                className="w-full border p-2 rounded"
-                            >
-                                {vendors.map(v => (
-                                    <option key={v.id} value={v.id}>{v.name}</option>
-                                ))}
-                            </select>
-                            <p className="text-xs text-gray-500 mt-2">
-                                Note: To edit items or quantities, please delete this order and re-upload the corrected file to ensure stock accuracy.
-                            </p>
-                        </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-bold mb-2">Vendor</label>
+                                <select
+                                    value={editData.vendor_id || ''}
+                                    onChange={(e) => setEditData({ ...editData, vendor_id: e.target.value })}
+                                    className="w-full border p-2 rounded"
+                                >
+                                    {vendors.map(v => (
+                                        <option key={v.id} value={v.id}>{v.name}</option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Note: To edit items or quantities, please delete this order and re-upload the corrected file to ensure stock accuracy.
+                                </p>
+                            </div>
 
-                        <button onClick={handleEditSave} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                            Save Changes
-                        </button>
+                            <button onClick={handleEditSave} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                Save Changes
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Delete Modal */}
             {
@@ -540,183 +553,189 @@ const PurchasePage = () => {
                 )
             }
             {/* Payment Action Modal */}
-            {showPaymentActionModal && selectedPurchasePay && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-xl">
-                        <h3 className="text-xl font-bold mb-4">Register Payment</h3>
-                        <p className="text-gray-600 mb-2 text-sm">
-                            Purchase Order: <strong>#{selectedPurchasePay.id}</strong> ({selectedPurchasePay.vendor_name})
-                        </p>
-                        <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
-                            <div className="flex justify-between mb-1">
-                                <span>Total Amount:</span>
-                                <span className="font-semibold">₹{selectedPurchasePay.total_amount.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between mb-1 text-green-600">
-                                <span>Already Paid:</span>
-                                <span>₹{(selectedPurchasePay.paid_amount || 0).toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between pt-1 border-t font-bold text-red-600">
-                                <span>Remaining:</span>
-                                <span>₹{(selectedPurchasePay.total_amount - (selectedPurchasePay.paid_amount || 0)).toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col space-y-3 mb-6">
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${paymentOption === 'full' ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'}`}>
-                                <input
-                                    type="radio"
-                                    className="mr-3 w-4 h-4 text-green-600"
-                                    checked={paymentOption === 'full'}
-                                    onChange={() => {
-                                        setPaymentOption('full');
-                                        setCustomAmount((selectedPurchasePay.total_amount - (selectedPurchasePay.paid_amount || 0)).toFixed(2));
-                                    }}
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-gray-800 text-sm">Full Payment</span>
-                                    <span className="text-xs text-gray-500">Settle the entire remaining balance.</span>
+            {
+                showPaymentActionModal && selectedPurchasePay && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-xl">
+                            <h3 className="text-xl font-bold mb-4">Register Payment</h3>
+                            <p className="text-gray-600 mb-2 text-sm">
+                                Purchase Order: <strong>#{selectedPurchasePay.id}</strong> ({selectedPurchasePay.vendor_name})
+                            </p>
+                            <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
+                                <div className="flex justify-between mb-1">
+                                    <span>Total Amount:</span>
+                                    <span className="font-semibold">₹{selectedPurchasePay.total_amount.toFixed(2)}</span>
                                 </div>
-                            </label>
-
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${paymentOption === 'partial' ? 'border-yellow-500 bg-yellow-50' : 'hover:bg-gray-50'}`}>
-                                <input
-                                    type="radio"
-                                    className="mr-3 w-4 h-4 text-yellow-600"
-                                    checked={paymentOption === 'partial'}
-                                    onChange={() => setPaymentOption('partial')}
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-gray-800 text-sm">Partial Payment</span>
-                                    <span className="text-xs text-gray-500">Pay a specific amount.</span>
+                                <div className="flex justify-between mb-1 text-green-600">
+                                    <span>Already Paid:</span>
+                                    <span>₹{(selectedPurchasePay.paid_amount || 0).toFixed(2)}</span>
                                 </div>
-                            </label>
-                        </div>
-
-                        {paymentOption === 'partial' && (
-                            <div className="mb-6">
-                                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Payment Amount (₹)</label>
-                                <input
-                                    type="number"
-                                    className="w-full border-2 border-yellow-100 rounded-lg p-3 text-lg focus:border-yellow-400 outline-none transition-colors"
-                                    value={customAmount}
-                                    onChange={(e) => setCustomAmount(e.target.value)}
-                                    autoFocus
-                                />
+                                <div className="flex justify-between pt-1 border-t font-bold text-red-600">
+                                    <span>Remaining:</span>
+                                    <span>₹{(selectedPurchasePay.total_amount - (selectedPurchasePay.paid_amount || 0)).toFixed(2)}</span>
+                                </div>
                             </div>
-                        )}
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => { setShowPaymentActionModal(false); setSelectedPurchasePay(null); }}
-                                className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded border"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleConfirmPayment}
-                                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded shadow-md hover:bg-indigo-700 transition-colors"
-                            >
-                                Register ₹{parseFloat(customAmount || 0).toFixed(2)}
-                            </button>
+                            <div className="flex flex-col space-y-3 mb-6">
+                                <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${paymentOption === 'full' ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        className="mr-3 w-4 h-4 text-green-600"
+                                        checked={paymentOption === 'full'}
+                                        onChange={() => {
+                                            setPaymentOption('full');
+                                            setCustomAmount((selectedPurchasePay.total_amount - (selectedPurchasePay.paid_amount || 0)).toFixed(2));
+                                        }}
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-gray-800 text-sm">Full Payment</span>
+                                        <span className="text-xs text-gray-500">Settle the entire remaining balance.</span>
+                                    </div>
+                                </label>
+
+                                <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${paymentOption === 'partial' ? 'border-yellow-500 bg-yellow-50' : 'hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        className="mr-3 w-4 h-4 text-yellow-600"
+                                        checked={paymentOption === 'partial'}
+                                        onChange={() => setPaymentOption('partial')}
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-gray-800 text-sm">Partial Payment</span>
+                                        <span className="text-xs text-gray-500">Pay a specific amount.</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {paymentOption === 'partial' && (
+                                <div className="mb-6">
+                                    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Payment Amount (₹)</label>
+                                    <input
+                                        type="number"
+                                        className="w-full border-2 border-yellow-100 rounded-lg p-3 text-lg focus:border-yellow-400 outline-none transition-colors"
+                                        value={customAmount}
+                                        onChange={(e) => setCustomAmount(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => { setShowPaymentActionModal(false); setSelectedPurchasePay(null); }}
+                                    className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded border"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmPayment}
+                                    className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded shadow-md hover:bg-indigo-700 transition-colors"
+                                >
+                                    Register ₹{parseFloat(customAmount || 0).toFixed(2)}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Upload Choice Modal */}
-            {showUploadModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-xl">
-                        <h3 className="text-xl font-bold mb-4">Upload Purchase Order</h3>
-                        <p className="text-gray-600 mb-6 text-sm">
-                            Please specify the payment status for the items in <strong>{pendingFile?.name}</strong>.
-                        </p>
+            {
+                showUploadModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-xl">
+                            <h3 className="text-xl font-bold mb-4">Upload Purchase Order</h3>
+                            <p className="text-gray-600 mb-6 text-sm">
+                                Please specify the payment status for the items in <strong>{pendingFile?.name}</strong>.
+                            </p>
 
-                        <div className="flex flex-col space-y-3 mb-6">
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${uploadPaid ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'}`}>
-                                <input
-                                    type="radio"
-                                    className="mr-3 w-4 h-4 text-green-600"
-                                    checked={uploadPaid}
-                                    onChange={() => setUploadPaid(true)}
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-gray-800 text-sm">Mark as PAID</span>
-                                    <span className="text-xs text-gray-500">Stock will be added, balance unchanged.</span>
-                                </div>
-                            </label>
+                            <div className="flex flex-col space-y-3 mb-6">
+                                <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${uploadPaid ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        className="mr-3 w-4 h-4 text-green-600"
+                                        checked={uploadPaid}
+                                        onChange={() => setUploadPaid(true)}
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-gray-800 text-sm">Mark as PAID</span>
+                                        <span className="text-xs text-gray-500">Stock will be added, balance unchanged.</span>
+                                    </div>
+                                </label>
 
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${!uploadPaid ? 'border-red-500 bg-red-50' : 'hover:bg-gray-50'}`}>
-                                <input
-                                    type="radio"
-                                    className="mr-3 w-4 h-4 text-red-600"
-                                    checked={!uploadPaid}
-                                    onChange={() => setUploadPaid(false)}
-                                />
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-gray-800 text-sm">Mark as DUE (Credit)</span>
-                                    <span className="text-xs text-gray-500">Stock will be added, vendor debt will increase.</span>
-                                </div>
-                            </label>
-                        </div>
+                                <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${!uploadPaid ? 'border-red-500 bg-red-50' : 'hover:bg-gray-50'}`}>
+                                    <input
+                                        type="radio"
+                                        className="mr-3 w-4 h-4 text-red-600"
+                                        checked={!uploadPaid}
+                                        onChange={() => setUploadPaid(false)}
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-gray-800 text-sm">Mark as DUE (Credit)</span>
+                                        <span className="text-xs text-gray-500">Stock will be added, vendor debt will increase.</span>
+                                    </div>
+                                </label>
+                            </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => { setShowUploadModal(false); setPendingFile(null); }}
-                                className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded border"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleConfirmUpload}
-                                className={`flex-1 px-4 py-2 text-white rounded shadow-md ${uploadPaid ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
-                            >
-                                Confirm Upload
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => { setShowUploadModal(false); setPendingFile(null); }}
+                                    className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded border"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmUpload}
+                                    className={`flex-1 px-4 py-2 text-white rounded shadow-md ${uploadPaid ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                                >
+                                    Confirm Upload
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Choice Modal */}
-            {showChoiceModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-                    <div className="bg-white rounded-3xl w-full max-w-lg p-10 shadow-2xl scale-in border-4 border-indigo-50">
-                        <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tighter mb-2 text-center">Update Orders</h2>
-                        <p className="text-gray-400 font-bold mb-10 text-center uppercase tracking-widest text-xs mt-2 italic">Choose how you want to proceed</p>
+            {
+                showChoiceModal && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+                        <div className="bg-white rounded-3xl w-full max-w-lg p-10 shadow-2xl scale-in border-4 border-indigo-50">
+                            <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tighter mb-2 text-center">Update Orders</h2>
+                            <p className="text-gray-400 font-bold mb-10 text-center uppercase tracking-widest text-xs mt-2 italic">Choose how you want to proceed</p>
 
-                        <div className="grid grid-cols-2 gap-6 mb-8">
-                            <label className="relative flex flex-col items-center p-8 border-2 border-dashed border-gray-100 rounded-3xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group">
-                                <div className="p-4 bg-indigo-50 rounded-2xl text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
-                                    <Upload className="w-8 h-8" />
-                                </div>
-                                <span className="font-black text-gray-800 uppercase tracking-tighter text-lg">Upload Order</span>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Excel or CSV file</span>
-                                <input type="file" className="hidden" onChange={handleFileUpload} accept=".xlsx, .xls, .csv" />
-                            </label>
+                            <div className="grid grid-cols-2 gap-6 mb-8">
+                                <label className="relative flex flex-col items-center p-8 border-2 border-dashed border-gray-100 rounded-3xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group">
+                                    <div className="p-4 bg-indigo-50 rounded-2xl text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
+                                        <Upload className="w-8 h-8" />
+                                    </div>
+                                    <span className="font-black text-gray-800 uppercase tracking-tighter text-lg">Upload Order</span>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase mt-1">Excel or CSV file</span>
+                                    <input type="file" className="hidden" onChange={handleFileUpload} accept=".xlsx, .xls, .csv" />
+                                </label>
+
+                                <button
+                                    onClick={handleDownloadTemplate}
+                                    className="flex flex-col items-center p-8 border-2 border-dashed border-gray-100 rounded-3xl cursor-pointer hover:border-green-400 hover:bg-green-50/30 transition-all group"
+                                >
+                                    <div className="p-4 bg-green-50 rounded-2xl text-green-600 mb-4 group-hover:scale-110 transition-transform">
+                                        <FileText className="w-8 h-8" />
+                                    </div>
+                                    <span className="font-black text-gray-800 uppercase tracking-tighter text-lg">Create Order</span>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase mt-1 text-center">Download Template</span>
+                                </button>
+                            </div>
 
                             <button
-                                onClick={handleDownloadTemplate}
-                                className="flex flex-col items-center p-8 border-2 border-dashed border-gray-100 rounded-3xl cursor-pointer hover:border-green-400 hover:bg-green-50/30 transition-all group"
+                                onClick={() => setShowChoiceModal(false)}
+                                className="w-full py-4 text-gray-400 font-black uppercase tracking-[0.2em] text-xs hover:text-gray-600 transition-colors"
                             >
-                                <div className="p-4 bg-green-50 rounded-2xl text-green-600 mb-4 group-hover:scale-110 transition-transform">
-                                    <FileText className="w-8 h-8" />
-                                </div>
-                                <span className="font-black text-gray-800 uppercase tracking-tighter text-lg">Create Order</span>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase mt-1 text-center">Download Template</span>
+                                Close Menu
                             </button>
                         </div>
-
-                        <button
-                            onClick={() => setShowChoiceModal(false)}
-                            className="w-full py-4 text-gray-400 font-black uppercase tracking-[0.2em] text-xs hover:text-gray-600 transition-colors"
-                        >
-                            Close Menu
-                        </button>
                     </div>
-                </div>
-            )}
+                )
+            }
         </div >
     );
 };

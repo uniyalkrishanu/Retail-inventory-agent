@@ -46,47 +46,44 @@ function Sidebar() {
   if (!user) return null;
 
   return (
-    <aside className="w-72 bg-[#5D9FD6] text-white flex flex-col shadow-2xl rounded-r-[32px] my-6 ml-0 overflow-hidden">
-      <div className="p-10 mb-6">
-        <h1 className="text-3xl font-black tracking-tighter">Inventory Agent</h1>
-        <div className="mt-4 flex items-center gap-3 p-3 bg-white/10 rounded-2xl border border-white/10 overflow-hidden">
-          <div className="w-10 h-10 min-w-10 rounded-xl bg-white/20 flex items-center justify-center font-black uppercase text-sm">
+    <aside className="w-64 bg-[#5D9FD6] text-white flex flex-col shadow-2xl rounded-r-[32px] overflow-hidden">
+      <div className="p-8 mb-2">
+        <h1 className="text-2xl font-black tracking-tighter">Inventory Agent</h1>
+        <div className="mt-4 flex items-center gap-3 p-2 bg-white/10 rounded-2xl border border-white/10 overflow-hidden">
+          <div className="w-8 h-8 min-w-[32px] rounded-xl bg-white/20 flex items-center justify-center font-black uppercase text-xs">
             {user.username.charAt(0)}
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold truncate capitalize">{user.username}</span>
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-60 truncate">{user.role}</span>
+            <span className="text-xs font-bold truncate capitalize">{user.username}</span>
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-60 truncate">{user.role}</span>
           </div>
         </div>
       </div>
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
         {navLinks.map((link) => {
           const isActive = location.pathname === link.to;
           return (
             <Link
               key={link.to}
               to={link.to}
-              className={`flex items-center px-6 py-4 rounded-2xl transition-all duration-200 group hover:bg-white/10 ${isActive ? 'bg-white/20 font-bold text-white' : 'text-white/80'}`}
+              className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-white/10 ${isActive ? 'bg-white/20 font-bold text-white' : 'text-white/80'}`}
             >
-              <span className="mr-4 group-hover:scale-110 transition-transform">{link.icon}</span>
-              <span className="text-sm font-medium uppercase tracking-widest">{link.label}</span>
+              <span className="mr-3 group-hover:scale-110 transition-transform">{link.icon}</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest">{link.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 mt-auto bg-black/5">
         <button
           onClick={logout}
-          className="flex items-center w-full px-6 py-4 rounded-2xl transition-all duration-200 group hover:bg-white/10 text-white/80 hover:text-white"
+          className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-white/10 text-white/80 hover:text-white"
         >
-          <span className="mr-4 group-hover:scale-110 transition-transform"><LogOut className="w-5 h-5" /></span>
-          <span className="text-sm font-medium uppercase tracking-widest">Logout</span>
+          <span className="mr-3 group-hover:scale-110 transition-transform"><LogOut className="w-5 h-5" /></span>
+          <span className="text-[11px] font-bold uppercase tracking-widest">Logout</span>
         </button>
-      </div>
-
-      <div className="p-8 border-t border-white/10">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Natraj India v2.0</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-30 mt-3 text-center">Natraj India v2.0</p>
       </div>
     </aside>
   );

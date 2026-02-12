@@ -194,12 +194,11 @@ async def import_inventory(
                 
                 # Add Purchase Item
                 p_item = models.PurchaseItem(
-                    purchase_id=purchase.id,
                     trophy_id=trophy.id,
                     quantity=quantity,
                     unit_cost=cost
                 )
-                db.add(p_item)
+                purchase.items.append(p_item)
                 total_amount += (quantity * cost)
             
             purchase.total_amount = total_amount
