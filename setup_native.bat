@@ -14,9 +14,9 @@ if %errorlevel% neq 0 (
     if !errorlevel! neq 0 (
         echo [WARNING] winget install failed (likely certificate issues).
         echo [INFO] Attempting direct download fallback via PowerShell...
-        powershell -Command \"\u0026 { $url = 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe'; $out = 'python_installer.exe'; echo 'Downloading Python 3.11...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process $out -ArgumentList '/quiet', 'InstallAllUsers=1', 'PrependPath=1' -Wait; Remove-Item $out; }\"
+        powershell -Command "& { $url = 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe'; $out = 'python_installer.exe'; echo 'Downloading Python 3.11...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process $out -ArgumentList '/quiet', 'InstallAllUsers=1', 'PrependPath=1' -Wait; Remove-Item $out; }"
         
-        python --version \u003enul 2\u003e\u00261
+        python --version >nul 2>&1
         if !errorlevel! neq 0 (
             echo.
             echo [ERROR] Auto-install failed.
@@ -41,9 +41,9 @@ if %errorlevel% neq 0 (
     if !errorlevel! neq 0 (
         echo [WARNING] winget install failed (likely certificate issues).
         echo [INFO] Attempting direct download fallback via PowerShell...
-        powershell -Command \"\u0026 { $url = 'https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi'; $out = 'node_installer.msi'; echo 'Downloading Node.js LTS...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process msiexec.exe -ArgumentList '/i', $out, '/passive' -Wait; Remove-Item $out; }\"
+        powershell -Command "& { $url = 'https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi'; $out = 'node_installer.msi'; echo 'Downloading Node.js LTS...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process msiexec.exe -ArgumentList '/i', $out, '/passive' -Wait; Remove-Item $out; }"
         
-        node --version \u003enul 2\u003e\u00261
+        node --version >nul 2>&1
         if !errorlevel! neq 0 (
             echo.
             echo [ERROR] Auto-install failed.
