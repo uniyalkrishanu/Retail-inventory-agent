@@ -12,9 +12,18 @@ if %errorlevel% neq 0 (
     echo [INFO] Python not found. Attempting auto-install via winget...
     winget install Python.Python.3.11 --silent --accept-package-agreements --accept-source-agreements
     if !errorlevel! neq 0 (
-        echo [ERROR] Python auto-install failed. Please install Python 3.9+ manually from python.org
-        pause
-        exit /b 1
+        echo [WARNING] winget install failed (likely certificate issues).
+        echo [INFO] Attempting direct download fallback via PowerShell...
+        powershell -Command \"\u0026 { $url = 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe'; $out = 'python_installer.exe'; echo 'Downloading Python 3.11...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process $out -ArgumentList '/quiet', 'InstallAllUsers=1', 'PrependPath=1' -Wait; Remove-Item $out; }\"
+        
+        python --version \u003enul 2\u003e\u00261
+        if !errorlevel! neq 0 (
+            echo.
+            echo [ERROR] Auto-install failed.
+            echo Please install Python 3.9+ manually from: https://www.python.org/
+            pause
+            exit /b 1
+        )
     )
     echo.
     echo [SUCCESS] Python has been installed.
@@ -30,9 +39,19 @@ if %errorlevel% neq 0 (
     echo [INFO] Node.js not found. Attempting auto-install via winget...
     winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
     if !errorlevel! neq 0 (
-        echo [ERROR] Node.js auto-install failed. Please install Node.js manually from nodejs.org
-        pause
-        exit /b 1
+        echo [WARNING] winget install failed (likely certificate issues).
+        echo [INFO] Attempting direct download fallback via PowerShell...
+        powershell -Command \"\u0026 { $url = 'https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi'; $out = 'node_installer.msi'; echo 'Downloading Node.js LTS...'; Invoke-WebRequest -Uri $url -OutFile $out; echo 'Launching installer...'; Start-Process msiexec.exe -ArgumentList '/i', $out, '/passive' -Wait; Remove-Item $out; }\"
+        
+        node --version \u003enul 2\u003e\u00261
+        if !errorlevel! neq 0 (
+            echo.
+            echo [ERROR] Auto-install failed.
+            echo Please install Node.js manually from: https://nodejs.org/
+            echo Select the \"LTS\" version.
+            pause
+            exit /b 1
+        )
     )
     echo.
     echo [SUCCESS] Node.js has been installed.
