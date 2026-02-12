@@ -1,17 +1,16 @@
 @echo off
+setlocal enabledelayedexpansion
+
 echo ==========================================
 echo   Launching Retail Inventory Agent
 echo ==========================================
 echo.
 
-:: Check if environment is set up
-if not exist "backend\venv" set NEEDS_SETUP=1
-if not exist "frontend\node_modules" set NEEDS_SETUP=1
+:: Check for backend venv
+if not exist "backend\venv" goto ERROR_SETUP
 
-if defined NEEDS_SETUP (
-    echo [WARNING] Environment not fully set up. Running setup first...
-    call setup_native.bat
-)
+:: Check for frontend node_modules
+if not exist "frontend\node_modules" goto ERROR_SETUP
 
 :: Start Backend in a new window
 echo Starting Backend Server...
@@ -32,3 +31,18 @@ echo.
 echo Close the command windows to stop the application.
 timeout /t 5 /nobreak >nul
 start http://localhost:3000
+exit /b 0
+
+:ERROR_SETUP
+echo [WARNING] Environment not fully set up.
+echo Launching setup_native.bat first...
+echo.
+pause
+call setup_native.bat
+if !errorlevel! neq 0 (
+    echo.
+    echo [ERROR] Setup failed. Cannot start application.
+    pause
+    exit /b 1
+)
+goto :EOF
