@@ -154,7 +154,21 @@ def init_users():
                         db.add(purchase)
                         db.flush()
                         
-                        for item_data in purchase_data.get("items", []):
+                        # Ensure every purchase has items for demo purposes
+                        items = purchase_data.get("items", [])
+                        if not items and fixture.get("trophies"):
+                            # Auto-generate 1-2 random items if none provided
+                            import random
+                            trophies = fixture.get("trophies")
+                            for _ in range(random.randint(1, 2)):
+                                t = random.choice(trophies)
+                                items.append({
+                                    "trophy_sku": t["sku"],
+                                    "quantity": random.randint(10, 30),
+                                    "unit_cost": t.get("cost_price", 150.0)
+                                })
+                        
+                        for item_data in items:
                             if item_data["trophy_sku"] in sku_to_trophy:
                                 purchase_item = models.PurchaseItem(
                                     trophy_id=sku_to_trophy[item_data["trophy_sku"]],

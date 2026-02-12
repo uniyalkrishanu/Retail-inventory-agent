@@ -457,7 +457,7 @@ const PurchasePage = () => {
                                                         </table>
                                                     ) : (
                                                         <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-gray-50/30">
-                                                            <PackageIcon className="w-8 h-8 mb-3 opacity-20" />
+                                                            <Package className="w-8 h-8 mb-3 opacity-20" />
                                                             <p className="text-[11px] font-bold uppercase tracking-widest">No items recorded for this order</p>
                                                             <p className="text-[9px] mt-1 opacity-60">This might be a legacy entry or seeded demo data.</p>
                                                         </div>
